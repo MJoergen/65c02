@@ -1,13 +1,17 @@
 # 65c02
-Implementation of the 65C02 CPU suitable for FPGA.
+Implementation of the 65C02 CPU suitable for FPGA. It is provided with a MIT license.
 
-It is based on VHDL-2008, and is tested on the Nexys4DDR board from Digilent, which contains a Xilinx Artyx-7 FPGA.
+It is written in VHDL-2008, and is tested on the Nexys4DDR board from Digilent,
+which contains a Xilinx Artyx-7 FPGA.
 
 ## Implementation
 The implementation is split up into a datapath block and a control block. The
 control block uses microcoding to implement each instruction. This microcode is
 currently combinatorial, but can be rewritten to be registered, and implemented
 in a BRAM.
+
+The design is inspired by Ben Eaters [video
+series](https://www.youtube.com/playlist?list=PLowKtXNTBypGqImE405J2565dvjafglHU).
 
 ## Utilization
 The utilization is:
