@@ -29,21 +29,8 @@ build:
 	mkdir -p build
 
 # Generate the bit-file used to configure the FPGA
-build/nexys4ddr.bit: build/nexys4ddr.tcl $(SOURCES) $(BOARD_DIR)/nexys4ddr.xdc
+build/nexys4ddr.bit: $(BOARD_DIR)/nexys4ddr.tcl $(SOURCES) $(BOARD_DIR)/nexys4ddr.xdc
 	bash -c "source $(XILINX_DIR)/settings64.sh ; vivado -mode tcl -source $<"
-
-# Generate the build script used by Vivado
-build/nexys4ddr.tcl: Makefile
-	echo "# This is a tcl command script for the Vivado tool chain" > $@
-	echo "read_vhdl -vhdl2008 { $(SOURCES)  }" >> $@
-	echo "read_xdc $(BOARD_DIR)/nexys4ddr.xdc" >> $@
-	echo "synth_design -top nexys4ddr -part xc7a100tcsg324-1 -flatten_hierarchy none" >> $@
-	echo "opt_design" >> $@
-	echo "place_design" >> $@
-	echo "route_design" >> $@
-	echo "write_bitstream -force build/nexys4ddr.bit" >> $@
-	echo "write_checkpoint -force build/nexys4ddr.dcp" >> $@
-	echo "exit" >> $@
 
 # Remove all generated files
 clean:
