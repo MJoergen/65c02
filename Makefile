@@ -33,8 +33,8 @@ build/nexys4ddr.bit: $(BOARD_DIR)/nexys4ddr.tcl $(SOURCES) $(BOARD_DIR)/nexys4dd
 	bash -c "source $(XILINX_DIR)/settings64.sh ; vivado -mode tcl -source $<"
 
 sim: build $(SOURCES) $(BOARD_DIR)/nexys4ddr_tb.vhd
-	ghdl -i --ieee=synopsys --std=08 --workdir=build --work=work $(SOURCES) $(BOARD_DIR)/nexys4ddr_tb.vhd
-	ghdl -m --ieee=synopsys --std=08 --workdir=build -frelaxed-rules nexys4ddr_tb
+	ghdl -i --std=08 --workdir=build $(SOURCES) $(BOARD_DIR)/nexys4ddr_tb.vhd
+	ghdl -m --std=08 --workdir=build nexys4ddr_tb
 	ghdl -r nexys4ddr_tb --wave=build/nexys4ddr.ghw --stop-time=10us
 	gtkwave build/nexys4ddr.ghw $(BOARD_DIR)/nexys4ddr.gtkw
 
