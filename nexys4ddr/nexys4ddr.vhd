@@ -15,9 +15,9 @@ end nexys4ddr;
 architecture synth of nexys4ddr is
 
    -- Clock and Reset
-   signal clk_cnt_r : std_logic_vector(1 downto 0);
+   signal clk_cnt_r : std_logic_vector(1 downto 0) := "00";
    signal clk_s     : std_logic;
-   signal rst_cnt_r : std_logic_vector(1 downto 0);
+   signal rst_cnt_r : std_logic_vector(1 downto 0) := "00";
    signal rst_s     : std_logic := '1';
 
    -- ROM
@@ -59,7 +59,7 @@ begin
    p_rst : process (clk_s)
    begin
       if rising_edge(clk_s) then
-         if rst_cnt_r /= 2 then
+         if rst_cnt_r /= 3 then
             rst_cnt_r <= rst_cnt_r + 1;
          end if;
       end if;
