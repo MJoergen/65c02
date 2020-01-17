@@ -15,31 +15,25 @@ end nexys4ddr;
 architecture synth of nexys4ddr is
 
    -- Clock and Reset
-   signal clk_cnt_r : std_logic_vector(1 downto 0) := "00";
-   signal clk_s     : std_logic;
-   signal rst_cnt_r : std_logic_vector(1 downto 0) := "00";
-   signal rst_s     : std_logic := '1';
-
-   -- ROM
-   type rom_t is array (0 to 15) of std_logic_vector(7 downto 0);
-   constant C_ROM_INIT : rom_t := (
-      X"88",            -- FFF0  DEY
-      X"D0", X"FD",     -- FFF1  BNE $FFF0
-      X"CA",            -- FFF3  DEX
-      X"D0", X"FA",     -- FFF4  BNE $FFF0
-      X"69", X"01",     -- FFF6  ADC #1
-      X"85", X"00",     -- FFF8  STA $0
-      X"80", X"F4",     -- FFFA  BRA $FFF0
-      X"F0", X"FF",     -- FFFC  RESET VECTOR
-      X"F0", X"FF"      -- FFFE  IRQ VECTOR
-   ); -- C_ROM_INIT
+   signal clk_cnt_r     : std_logic_vector(1 downto 0) := "00";
+   signal clk_s         : std_logic;   -- CPU clock running at 25 MHz.
+   signal clkn_s        : std_logic;   -- Inverted clock used for the memory.
+   signal rst_cnt_r     : std_logic_vector(1 downto 0) := "00";
+   signal rst_s         : std_logic := '1';
 
    -- CPU signals
-   signal addr_s    : std_logic_vector(15 downto 0);
-   signal wr_en_s   : std_logic;
-   signal wr_data_s : std_logic_vector( 7 downto 0);
-   signal rd_en_s   : std_logic;
-   signal rd_data_s : std_logic_vector( 7 downto 0);
+   signal addr_s        : std_logic_vector(15 downto 0);
+   signal wr_en_s       : std_logic;
+   signal wr_data_s     : std_logic_vector( 7 downto 0);
+   signal rd_en_s       : std_logic;
+   signal rd_data_s     : std_logic_vector( 7 downto 0);
+
+   -- Address decoding
+   signal wr_en_ram_s   : std_logic;
+   signal rd_data_ram_s : std_logic_vector( 7 downto 0);
+   signal rd_data_rom_s : std_logic_vector( 7 downto 0);
+
+   constant C_ROM_FILE  : string := "build/rom.txt";
 
 begin
 
@@ -55,6 +49,7 @@ begin
    end process p_clk;
 
    clk_s <= clk_cnt_r(1);
+   clkn_s <= not clk_s;
 
    p_rst : process (clk_s)
    begin
@@ -66,14 +61,6 @@ begin
    end process p_rst;
 
    rst_s <= '0' when rst_cnt_r = 3 else '1';
-
-
-   --------------------------------------------------
-   -- Read from ROM
-   --------------------------------------------------
-
-   rd_data_s <= C_ROM_INIT(to_integer(addr_s(3 downto 0)));
-
 
 
    --------------------------------------------------
@@ -95,15 +82,57 @@ begin
       ); -- i_cpu_65c02
       
 
-   p_led : process (clk_s)
-   begin
-      if rising_edge(clk_s) then
-         if addr_s = 0 and wr_en_s = '1' then
-            led_o(7 downto 0)  <= wr_data_s;
-            led_o(15 downto 8) <= (others => '0');
-         end if;
-      end if;
-   end process p_led;
+   --------------------------------------------------
+   -- Instantiate ROM
+   --------------------------------------------------
+
+   i_rom : entity work.memory
+      generic map (
+         G_INIT_FILE => C_ROM_FILE,
+         G_ADDR_BITS => 14
+      )
+      port map (
+         clk_i     => clkn_s,
+         addr_i    => addr_s(13 downto 0),
+         wr_en_i   => '0',
+         wr_data_i => (others => '0'),
+         rd_data_o => rd_data_rom_s
+      ); -- i_rom
+
+
+   --------------------------------------------------
+   -- Instantiate RAM
+   --------------------------------------------------
+
+   i_ram : entity work.memory
+      generic map (
+         G_ADDR_BITS => 14
+      )
+      port map (
+         clk_i     => clkn_s,
+         addr_i    => addr_s(13 downto 0),
+         wr_en_i   => wr_en_ram_s,
+         wr_data_i => wr_data_s,
+         rd_data_o => rd_data_ram_s
+      ); -- i_ram
+
+
+   --------------------------------------------------
+   -- Address decoding
+   --------------------------------------------------
+
+   wr_en_ram_s <= wr_en_s       when addr_s(15 downto 14) = "00" else '0';
+   rd_data_s   <= rd_data_ram_s when addr_s(15 downto 14) = "00" else
+                  rd_data_rom_s when addr_s(15 downto 14) = "11" else
+                  (others => '0');
+
+
+   --------------------------------------------------
+   -- Show progress of LEDs
+   --------------------------------------------------
+
+   led_o <= addr_s;
+
 
 end architecture synth;
 
