@@ -2,7 +2,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std_unsigned.all;
 
--- This module implements the 6502 CPU.
+-- This module implements the 65C02 CPU.
 
 entity cpu_65c02 is
    port (
@@ -19,7 +19,7 @@ entity cpu_65c02 is
    );
 end entity cpu_65c02;
 
-architecture structural of cpu_65c02 is
+architecture synth of cpu_65c02 is
 
    signal ar_sel    : std_logic;
    signal hi_sel    : std_logic_vector(2 downto 0);
@@ -121,5 +121,5 @@ begin
 
    debug_o <= last_pc;
 
-end architecture structural;
+end architecture synth;
 
