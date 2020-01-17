@@ -16,7 +16,7 @@ end entity xr;
 architecture structural of xr is
 
    -- 'X' register
-   signal xr : std_logic_vector(7 downto 0);
+   signal xr : std_logic_vector(7 downto 0) := X"00";
 
 begin
 

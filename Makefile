@@ -32,10 +32,18 @@ build:
 build/nexys4ddr.bit: $(BOARD_DIR)/nexys4ddr.tcl $(SOURCES) $(BOARD_DIR)/nexys4ddr.xdc
 	bash -c "source $(XILINX_DIR)/settings64.sh ; vivado -mode tcl -source $<"
 
+sim: build $(SOURCES) $(BOARD_DIR)/nexys4ddr_tb.vhd
+	ghdl -i --ieee=synopsys --std=08 --workdir=build --work=work $(SOURCES) $(BOARD_DIR)/nexys4ddr_tb.vhd
+	ghdl -m --ieee=synopsys --std=08 --workdir=build -frelaxed-rules nexys4ddr_tb
+	ghdl -r nexys4ddr_tb --wave=build/nexys4ddr.ghw --stop-time=10us
+	gtkwave build/nexys4ddr.ghw $(BOARD_DIR)/nexys4ddr.gtkw
+
 # Remove all generated files
 clean:
 	rm -rf build
 	rm -rf usage_statistics_webtalk.*
 	rm -rf vivado*
 	rm -rf .Xil
+	rm -rf e~nexys4ddr_tb.o
+	rm -rf nexys4ddr_tb
 

@@ -16,7 +16,7 @@ end entity ar;
 architecture structural of ar is
 
    -- 'A' register
-   signal ar : std_logic_vector(7 downto 0);
+   signal ar : std_logic_vector(7 downto 0) := X"00";
 
 begin
 

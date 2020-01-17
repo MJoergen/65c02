@@ -16,7 +16,7 @@ end entity yr;
 architecture structural of yr is
 
    -- 'Y' register
-   signal yr : std_logic_vector(7 downto 0);
+   signal yr : std_logic_vector(7 downto 0) := X"00";
 
 begin
 
