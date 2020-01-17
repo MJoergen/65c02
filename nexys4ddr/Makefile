@@ -45,16 +45,7 @@ nexys4ddr.tcl: Makefile
 clean:
 	rm -rf usage_statistics_webtalk.*
 	rm -rf vivado*
-	rm -rf updatemem*
-	rm -rf nexys4ddr-rom.bit
 	rm -rf nexys4ddr.bit
-	rm -rf nexys4ddr.dcp
-	rm -rf post_synth.dcp
-	rm -rf post_opt.dcp
 	rm -rf nexys4ddr.tcl
 	rm -rf .Xil
-	rm -rf .cache
-	rm -rf rom.mem
-	rm -rf nexys4ddr.mmi
-	rm -rf nexys4ddr.ltx
 
