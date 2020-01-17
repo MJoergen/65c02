@@ -85,20 +85,23 @@ architecture structural of control is
 
 begin
 
-   -----------------------------------------------------
-   -- Instantiate combinatorial lookup in microcode ROM
-   -----------------------------------------------------
+   ---------------------------
+   -- Read from microcode ROM
+   ---------------------------
 
-   microcode_addr_s <= ir & cnt;
+   microcode_addr_s <= X"00"  & (cnt+1)   when (cnt = 0 and cic /= "00") or rst_i = '1' else
+                       data_i & "001"     when cnt = 0 else
+                       ir     & (cnt+1);
 
    i_microcode : entity work.microcode
    port map (
+      clk_i  => clk_i,
       addr_i => microcode_addr_s,
       data_o => microcode_data_s
    );
 
-   ctl <= NOP when invalid_inst /= 0 else
-          ADDR_PC + PC_INC when cnt = 0 else
+   ctl <= NOP              when invalid_inst /= 0 else
+          ADDR_PC + PC_INC when cnt = 0           else
           microcode_data_s;
 
 
@@ -114,7 +117,7 @@ begin
 
          -- Upon reset, start by loading Program Counter from Reset vector.
          if rst_i = '1' then
-            cnt <= "101";
+            cnt <= "100";
          end if;
       end if;
    end process p_cnt;

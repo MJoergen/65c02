@@ -26,21 +26,23 @@ make sim
 
 ## Implementation
 The implementation is split up into a datapath block and a control block. The
-control block uses microcoding to implement each instruction. This microcode is
-currently combinatorial, but can be rewritten to be registered, and implemented
-in a BRAM.
+control block uses microcoding to implement each instruction. The microcode is
+implemented in a BRAM.
 
-The design is inspired by Ben Eaters [video
+This design is inspired by Ben Eaters [video
 series](https://www.youtube.com/playlist?list=PLowKtXNTBypGqImE405J2565dvjafglHU).
+
+To save BRAM, the microcode can be implemented using combinatorial logic
+instead, at a cost of approx. 200 LUTs.
 
 ## Utilization
 The utilization is:
 
 |  Item     | Number |
 | --------  | ------ |
-| LUTs      |  672   |
-| Registers |  107   |
-| BRAMs     |    0   | 
+| LUTs      |  445   |
+| Registers |  106   |
+| BRAMs     |    3   | 
 
 ## Timing
 The CPU easily runs at 25 MHz, i.e. a clock period of 40 ns.

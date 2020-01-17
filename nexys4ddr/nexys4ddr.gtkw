@@ -1,23 +1,24 @@
 [*]
 [*] GTKWave Analyzer v3.3.86 (w)1999-2017 BSI
-[*] Fri Jan 17 09:18:44 2020
+[*] Fri Jan 17 10:24:57 2020
 [*]
 [dumpfile] "/home/mfj/git/MJoergen/65c02/build/nexys4ddr.ghw"
-[dumpfile_mtime] "Fri Jan 17 09:17:56 2020"
-[dumpfile_size] 370509
+[dumpfile_mtime] "Fri Jan 17 10:22:00 2020"
+[dumpfile_size] 423889
 [savefile] "/home/mfj/git/MJoergen/65c02/nexys4ddr/nexys4ddr.gtkw"
 [timestart] 0
-[size] 1920 1172
-[pos] -1 -1
-*-30.296131 2 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[size] 1853 1145
+[pos] -1853 53
+*-27.296131 243000000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] top.
 [treeopen] top.nexys4ddr_tb.
 [treeopen] top.nexys4ddr_tb.i_nexys4ddr.
 [treeopen] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.
-[sst_width] 223
-[signals_width] 142
+[treeopen] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.
+[sst_width] 383
+[signals_width] 326
 [sst_expanded] 1
-[sst_vpaned_height] 353
+[sst_vpaned_height] 611
 @800200
 -65c02
 @28
@@ -31,5 +32,25 @@ top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.rd_en_o
 #{top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.rd_data_i[7:0]} top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.rd_data_i[7] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.rd_data_i[6] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.rd_data_i[5] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.rd_data_i[4] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.rd_data_i[3] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.rd_data_i[2] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.rd_data_i[1] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.rd_data_i[0]
 @1000200
 -65c02
+@800200
+-control
+@28
+top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.clk_i
+top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.rst_i
+@29
+#{top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.cic[1:0]} top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.cic[1] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.cic[0]
+@28
+top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.wait_i
+@22
+#{top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.data_i[7:0]} top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.data_i[7] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.data_i[6] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.data_i[5] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.data_i[4] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.data_i[3] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.data_i[2] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.data_i[1] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.data_i[0]
+#{top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.ir[7:0]} top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.ir[7] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.ir[6] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.ir[5] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.ir[4] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.ir[3] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.ir[2] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.ir[1] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.ir[0]
+@28
+#{top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.cnt[2:0]} top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.cnt[2] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.cnt[1] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.cnt[0]
+@22
+#{top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.ctl[43:0]} top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.ctl[43] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.ctl[42] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.ctl[41] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.ctl[40] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.ctl[39] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.ctl[38] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.ctl[37] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.ctl[36] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.ctl[35] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.ctl[34] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.ctl[33] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.ctl[32] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.ctl[31] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.ctl[30] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.ctl[29] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.ctl[28] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.ctl[27] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.ctl[26] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.ctl[25] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.ctl[24] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.ctl[23] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.ctl[22] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.ctl[21] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.ctl[20] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.ctl[19] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.ctl[18] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.ctl[17] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.ctl[16] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.ctl[15] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.ctl[14] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.ctl[13] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.ctl[12] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.ctl[11] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.ctl[10] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.ctl[9] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.ctl[8] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.ctl[7] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.ctl[6] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.ctl[5] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.ctl[4] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.ctl[3] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.ctl[2] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.ctl[1] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.ctl[0]
+#{top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.microcode_addr_s[10:0]} top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.microcode_addr_s[10] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.microcode_addr_s[9] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.microcode_addr_s[8] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.microcode_addr_s[7] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.microcode_addr_s[6] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.microcode_addr_s[5] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.microcode_addr_s[4] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.microcode_addr_s[3] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.microcode_addr_s[2] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.microcode_addr_s[1] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.microcode_addr_s[0]
+#{top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.microcode_data_s[43:0]} top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.microcode_data_s[43] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.microcode_data_s[42] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.microcode_data_s[41] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.microcode_data_s[40] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.microcode_data_s[39] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.microcode_data_s[38] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.microcode_data_s[37] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.microcode_data_s[36] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.microcode_data_s[35] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.microcode_data_s[34] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.microcode_data_s[33] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.microcode_data_s[32] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.microcode_data_s[31] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.microcode_data_s[30] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.microcode_data_s[29] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.microcode_data_s[28] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.microcode_data_s[27] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.microcode_data_s[26] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.microcode_data_s[25] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.microcode_data_s[24] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.microcode_data_s[23] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.microcode_data_s[22] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.microcode_data_s[21] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.microcode_data_s[20] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.microcode_data_s[19] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.microcode_data_s[18] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.microcode_data_s[17] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.microcode_data_s[16] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.microcode_data_s[15] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.microcode_data_s[14] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.microcode_data_s[13] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.microcode_data_s[12] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.microcode_data_s[11] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.microcode_data_s[10] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.microcode_data_s[9] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.microcode_data_s[8] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.microcode_data_s[7] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.microcode_data_s[6] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.microcode_data_s[5] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.microcode_data_s[4] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.microcode_data_s[3] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.microcode_data_s[2] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.microcode_data_s[1] top.nexys4ddr_tb.i_nexys4ddr.i_cpu_65c02.i_control.microcode_data_s[0]
+@1000200
+-control
 [pattern_trace] 1
 [pattern_trace] 0
