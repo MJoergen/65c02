@@ -47,7 +47,7 @@ The CPU easily runs at 25 MHz, i.e. a clock period of 40 ns.
 
 Beware, the 65C02 CPU expects the output from the RAM to be ready on the next
 clock cycle, which is essentially the same as requiring a combinatorial read
-from memory. In my test, I've clocked the Block RAM (outside the CPU) using an
-inverted clock, so essentially the timing requirement is half a clock period,
-i.e. 20 ns.
+from memory. In applications, one option is to clock the Block RAM (outside the
+CPU) using an inverted clock, so essentially the timing requirement is half a
+clock period, i.e. 20 ns.
 
