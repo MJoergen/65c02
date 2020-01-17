@@ -14,7 +14,9 @@ To test the implementation on the Nexys4DDR board, simply type
 ```
 make
 ```
-This will generate a bitfile and program this bitfile onto the Nexys4DDR board. 
+This will generate a bitfile and program this bitfile onto the Nexys4DDR board.
+The test implementation runs a short assembly program that shows a binary
+counter on the LED's.
 
 ### Testing in simulation
 To test the implementation in simulation, type
