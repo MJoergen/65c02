@@ -53,3 +53,7 @@ from memory. In applications, one option is to clock the Block RAM (outside the
 CPU) using an inverted clock, so essentially the timing requirement is half a
 clock period, i.e. 20 ns.
 
+## Verification
+The design has been tested using Klaus Dormanns very thorough test
+[here](https://github.com/Klaus2m5/6502_65C02_functional_tests).
+
