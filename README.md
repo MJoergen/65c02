@@ -68,7 +68,3 @@ from memory. In the test application the RAM and ROM are clocked using an
 inverted clock, so essentially the timing requirement is half a clock period,
 i.e. 20 ns.
 
-## TODO
-Make the cycle timing of all instructions match the real chip, see e.g.  [this
-link](http://6502.org/tutorials/65c02opcodes.html).
-
