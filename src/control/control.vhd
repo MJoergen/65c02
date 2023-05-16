@@ -5,6 +5,7 @@ use ieee.numeric_std_unsigned.all;
 entity control is
    port (
       clk_i      : in  std_logic;
+      ce_i       : in  std_logic;
       wait_i     : in  std_logic;
       irq_i      : in  std_logic;
       nmi_i      : in  std_logic;
@@ -84,26 +85,6 @@ architecture structural of control is
 
    signal invalid_inst : std_logic_vector(7 downto 0) := (others => '0');
 
-   type strings_t is array (natural range <>) of string;
-   constant C_DISAS : strings_t(0 to 255) := (
-      "BRK", "ORA", "???", "???", "???", "ORA", "ASL", "???", "PHP", "ORA", "ASL", "???", "???", "ORA", "ASL", "???",
-      "BPL", "ORA", "???", "???", "???", "ORA", "ASL", "???", "CLC", "ORA", "???", "???", "???", "ORA", "ASL", "???",
-      "JSR", "AND", "???", "???", "BIT", "AND", "ROL", "???", "PLP", "AND", "ROL", "???", "BIT", "AND", "ROL", "???",
-      "BMI", "AND", "???", "???", "???", "AND", "ROL", "???", "SEC", "AND", "???", "???", "???", "AND", "ROL", "???",
-      "RTI", "EOR", "???", "???", "???", "EOR", "LSR", "???", "PHA", "EOR", "LSR", "???", "JMP", "EOR", "LSR", "???",
-      "BVC", "EOR", "???", "???", "???", "EOR", "LSR", "???", "CLI", "EOR", "???", "???", "???", "EOR", "LSR", "???",
-      "RTS", "ADC", "???", "???", "???", "ADC", "ROR", "???", "PLA", "ADC", "ROR", "???", "JMP", "ADC", "ROR", "???",
-      "BVS", "ADC", "???", "???", "???", "ADC", "ROR", "???", "SEI", "ADC", "???", "???", "???", "ADC", "ROR", "???",
-      "???", "STA", "???", "???", "STY", "STA", "STX", "???", "DEY", "???", "TXA", "???", "STY", "STA", "STX", "???",
-      "BCC", "STA", "???", "???", "STY", "STA", "STX", "???", "TYA", "STA", "TXS", "???", "???", "STA", "???", "???",
-      "LDY", "LDA", "LDX", "???", "LDY", "LDA", "LDX", "???", "TAY", "LDA", "TAX", "???", "LDY", "LDA", "LDX", "???",
-      "BCS", "LDA", "???", "???", "LDY", "LDA", "LDX", "???", "CLV", "LDA", "TSX", "???", "LDY", "LDA", "LDX", "???",
-      "CPY", "CMP", "???", "???", "CPY", "CMP", "DEC", "???", "INY", "CMP", "DEX", "???", "CPY", "CMP", "DEC", "???",
-      "BNE", "CMP", "???", "???", "???", "CMP", "DEC", "???", "CLD", "CMP", "???", "???", "???", "CMP", "DEC", "???",
-      "CPX", "SBC", "???", "???", "CPX", "SBC", "INC", "???", "INX", "SBC", "NOP", "???", "CPX", "SBC", "INC", "???",
-      "BEQ", "SBC", "???", "???", "???", "SBC", "INC", "???", "SED", "SBC", "???", "???", "???", "SBC", "INC", "???" 
-   );
-
 begin
 
    ---------------------------
@@ -117,6 +98,7 @@ begin
    i_microcode : entity work.microcode
    port map (
       clk_i  => clk_i,
+      ce_i   => ce_i,
       addr_i => microcode_addr_s,
       data_o => microcode_data_s
    );
@@ -129,16 +111,18 @@ begin
    p_cnt : process (clk_i)
    begin
       if rising_edge(clk_i) then
-         if wait_i = '0' then
-            cnt <= cnt + 1;
-            if last_s = '1' then
-               cnt <= (others => '0');
+         if ce_i = '1' then
+            if wait_i = '0' then
+               cnt <= cnt + 1;
+               if last_s = '1' then
+                  cnt <= (others => '0');
+               end if;
             end if;
-         end if;
 
-         -- Upon reset, start by loading Program Counter from Reset vector.
-         if rst_i = '1' then
-            cnt <= "100";
+            -- Upon reset, start by loading Program Counter from Reset vector.
+            if rst_i = '1' then
+               cnt <= "100";
+            end if;
          end if;
       end if;
    end process p_cnt;
@@ -146,23 +130,22 @@ begin
    p_ir : process (clk_i)
    begin
       if rising_edge(clk_i) then
-         if wait_i = '0' then
-            if cnt = 0 then
-               ir <= data_i;     -- Only load instruction register at beginning of instruction.
+         if ce_i = '1' then
+            if wait_i = '0' then
+               if cnt = 0 then
+                  ir <= data_i;     -- Only load instruction register at beginning of instruction.
 
-               report "CPU: " & to_hstring(addr_i) & " : " & to_hstring(data_i) & " " &
-                  C_DISAS(to_integer(data_i));
-
-               -- Inject a BRK in case of hardware interrupt.
-               if cic /= "00" then
-                  ir <= X"00";
+                  -- Inject a BRK in case of hardware interrupt.
+                  if cic /= "00" then
+                     ir <= X"00";
+                  end if;
                end if;
             end if;
-         end if;
 
-         -- Upon reset, force the first instruction to be BRK
-         if rst_i = '1' then
-            ir <= X"00";
+            -- Upon reset, force the first instruction to be BRK
+            if rst_i = '1' then
+               ir <= X"00";
+            end if;
          end if;
       end if;
    end process p_ir;
@@ -170,17 +153,19 @@ begin
    p_invalid : process (clk_i)
    begin
       if rising_edge(clk_i) then
-         if wait_i = '0' then
-            if invalid_s = '1' then
-               if invalid_inst = X"00" then
-                  invalid_inst <= ir;
+         if ce_i = '1' then
+            if wait_i = '0' then
+               if invalid_s = '1' then
+                  if invalid_inst = X"00" then
+                     invalid_inst <= ir;
+                  end if;
                end if;
             end if;
-         end if;
 
-         -- Upon reset, clear the invalid instruction register.
-         if rst_i = '1' then
-            invalid_inst <= X"00";
+            -- Upon reset, clear the invalid instruction register.
+            if rst_i = '1' then
+               invalid_inst <= X"00";
+            end if;
          end if;
       end if;
    end process p_invalid;
@@ -188,24 +173,26 @@ begin
    p_cic : process (clk_i)
    begin
       if rising_edge(clk_i) then
-         -- Sample and prioritize hardware interrupts at end of instruction.
-         if wait_i = '0' then
-            if last_s = '1' then
-               if rst_i = '1' then  -- Reset is non-maskable and level sensitive.
-                  cic <= "10";
-               elsif nmi_d = '0' and nmi_i = '1' then -- NMI is non-maskable, but edge sensitive.
-                  cic <= "01";
-               elsif irq_i = '1' and sri_i = '0' then -- IRQ is level sensitive, but maskable.
-                  cic <= "11";
-               else
-                  cic <= "00";   -- BRK
+         if ce_i = '1' then
+            -- Sample and prioritize hardware interrupts at end of instruction.
+            if wait_i = '0' then
+               if last_s = '1' then
+                  if rst_i = '1' then  -- Reset is non-maskable and level sensitive.
+                     cic <= "10";
+                  elsif nmi_d = '0' and nmi_i = '1' then -- NMI is non-maskable, but edge sensitive.
+                     cic <= "01";
+                  elsif irq_i = '1' and sri_i = '0' then -- IRQ is level sensitive, but maskable.
+                     cic <= "11";
+                  else
+                     cic <= "00";   -- BRK
+                  end if;
                end if;
             end if;
-         end if;
 
-         -- Upon reset, force a hardware interrupt from the Reset vector.
-         if rst_i = '1' then
-            cic <= "10";
+            -- Upon reset, force a hardware interrupt from the Reset vector.
+            if rst_i = '1' then
+               cic <= "10";
+            end if;
          end if;
       end if;
    end process p_cic;
@@ -213,9 +200,11 @@ begin
    p_nmi_d : process (clk_i)
    begin
       if rising_edge(clk_i) then
-         if wait_i = '0' then
-            if last_s = '1' then
-               nmi_d <= nmi_i;
+         if ce_i = '1' then
+            if wait_i = '0' then
+               if last_s = '1' then
+                  nmi_d <= nmi_i;
+               end if;
             end if;
          end if;
       end if;

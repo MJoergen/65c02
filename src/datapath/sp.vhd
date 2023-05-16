@@ -5,6 +5,7 @@ use ieee.numeric_std_unsigned.all;
 entity sp is
    port (
       clk_i    : in  std_logic;
+      ce_i     : in  std_logic;
       wait_i   : in  std_logic;
       sp_sel_i : in  std_logic_vector(1 downto 0);
       xr_i     : in  std_logic_vector(7 downto 0);
@@ -29,14 +30,16 @@ begin
    sp_proc : process (clk_i)
    begin
       if rising_edge(clk_i) then
-         if wait_i = '0' then
-            case sp_sel_i is
-               when SP_NOP => null;
-               when SP_INC => sp <= sp + 1;
-               when SP_DEC => sp <= sp - 1;
-               when SP_XR  => sp <= xr_i;
-               when others => null;
-            end case;
+         if ce_i = '1' then
+            if wait_i = '0' then
+               case sp_sel_i is
+                  when SP_NOP => null;
+                  when SP_INC => sp <= sp + 1;
+                  when SP_DEC => sp <= sp - 1;
+                  when SP_XR  => sp <= xr_i;
+                  when others => null;
+               end case;
+            end if;
          end if;
       end if;
    end process sp_proc;

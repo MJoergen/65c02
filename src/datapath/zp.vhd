@@ -5,6 +5,7 @@ use ieee.numeric_std_unsigned.all;
 entity zp is
    port (
       clk_i    : in  std_logic;
+      ce_i     : in  std_logic;
       wait_i   : in  std_logic;
       zp_sel_i : in  std_logic_vector(1 downto 0);
       data_i   : in  std_logic_vector(7 downto 0);
@@ -29,14 +30,16 @@ begin
    zp_proc : process (clk_i)
    begin
       if rising_edge(clk_i) then
-         if wait_i = '0' then
-            case zp_sel_i is
-               when ZP_NOP  => null;
-               when ZP_DATA => zp <= data_i;
-               when ZP_ADDX => zp <= zp + xr_i;
-               when ZP_INC  => zp <= zp + 1;
-               when others  => null;
-            end case;
+         if ce_i = '1' then
+            if wait_i = '0' then
+               case zp_sel_i is
+                  when ZP_NOP  => null;
+                  when ZP_DATA => zp <= data_i;
+                  when ZP_ADDX => zp <= zp + xr_i;
+                  when ZP_INC  => zp <= zp + 1;
+                  when others  => null;
+               end case;
+            end if;
          end if;
       end if;
    end process zp_proc;

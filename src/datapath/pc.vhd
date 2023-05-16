@@ -5,6 +5,7 @@ use ieee.numeric_std_unsigned.all;
 entity pc is
    port (
       clk_i    : in  std_logic;
+      ce_i     : in  std_logic;
       wait_i   : in  std_logic;
       pc_sel_i : in  std_logic_vector( 6 downto 0);
       hi_i     : in  std_logic_vector( 7 downto 0);
@@ -63,42 +64,44 @@ begin
    pc_proc : process (clk_i)
    begin
       if rising_edge(clk_i) then
-         if wait_i = '0' then
-            case pc_sel_i(3 downto 0) is
-               when PC_NOP => null;
-               when PC_INC => pc <= pc + 1;
-               when PC_HL  => pc <= hi_i & lo_i;
-               when PC_HL1 => pc <= (hi_i & lo_i) + 1;
-               when PC_SR  =>
-                  if (pc_sel_i(6 downto 4) = PC_BPL and sr_i(SR_S) = '0') or
-                     (pc_sel_i(6 downto 4) = PC_BMI and sr_i(SR_S) = '1') or
-                     (pc_sel_i(6 downto 4) = PC_BVC and sr_i(SR_V) = '0') or
-                     (pc_sel_i(6 downto 4) = PC_BVS and sr_i(SR_V) = '1') or
-                     (pc_sel_i(6 downto 4) = PC_BCC and sr_i(SR_C) = '0') or
-                     (pc_sel_i(6 downto 4) = PC_BCS and sr_i(SR_C) = '1') or
-                     (pc_sel_i(6 downto 4) = PC_BNE and sr_i(SR_Z) = '0') or
-                     (pc_sel_i(6 downto 4) = PC_BEQ and sr_i(SR_Z) = '1') then
-                     pc <= pc + 1 + sign_extend(data_i);
-                  else
-                     pc <= pc + 1;  -- If branch is not taken, just go to the next instruction.
-                  end if;
-               when PC_D_HI => pc(15 downto 8) <= data_i;
-               when PC_D_LO => pc( 7 downto 0) <= data_i;
-               when PC_BRA  => pc <= pc + 1 + sign_extend(data_i);
-               when PC_BBR  =>
-                  if mr_i(to_integer(pc_sel_i(6 downto 4))) = '0' then
-                     pc <= pc + 1 + sign_extend(data_i);
-                  else
-                     pc <= pc + 1;  -- If branch is not taken, just go to the next instruction.
-                  end if;
-               when PC_BBS  =>
-                  if mr_i(to_integer(pc_sel_i(6 downto 4))) = '1' then
-                     pc <= pc + 1 + sign_extend(data_i);
-                  else
-                     pc <= pc + 1;  -- If branch is not taken, just go to the next instruction.
-                  end if;
-               when others => null;
-            end case;
+         if ce_i = '1' then
+            if wait_i = '0' then
+               case pc_sel_i(3 downto 0) is
+                  when PC_NOP => null;
+                  when PC_INC => pc <= pc + 1;
+                  when PC_HL  => pc <= hi_i & lo_i;
+                  when PC_HL1 => pc <= (hi_i & lo_i) + 1;
+                  when PC_SR  =>
+                     if (pc_sel_i(6 downto 4) = PC_BPL and sr_i(SR_S) = '0') or
+                        (pc_sel_i(6 downto 4) = PC_BMI and sr_i(SR_S) = '1') or
+                        (pc_sel_i(6 downto 4) = PC_BVC and sr_i(SR_V) = '0') or
+                        (pc_sel_i(6 downto 4) = PC_BVS and sr_i(SR_V) = '1') or
+                        (pc_sel_i(6 downto 4) = PC_BCC and sr_i(SR_C) = '0') or
+                        (pc_sel_i(6 downto 4) = PC_BCS and sr_i(SR_C) = '1') or
+                        (pc_sel_i(6 downto 4) = PC_BNE and sr_i(SR_Z) = '0') or
+                        (pc_sel_i(6 downto 4) = PC_BEQ and sr_i(SR_Z) = '1') then
+                        pc <= pc + 1 + sign_extend(data_i);
+                     else
+                        pc <= pc + 1;  -- If branch is not taken, just go to the next instruction.
+                     end if;
+                  when PC_D_HI => pc(15 downto 8) <= data_i;
+                  when PC_D_LO => pc( 7 downto 0) <= data_i;
+                  when PC_BRA  => pc <= pc + 1 + sign_extend(data_i);
+                  when PC_BBR  =>
+                     if mr_i(to_integer(pc_sel_i(6 downto 4))) = '0' then
+                        pc <= pc + 1 + sign_extend(data_i);
+                     else
+                        pc <= pc + 1;  -- If branch is not taken, just go to the next instruction.
+                     end if;
+                  when PC_BBS  =>
+                     if mr_i(to_integer(pc_sel_i(6 downto 4))) = '1' then
+                        pc <= pc + 1 + sign_extend(data_i);
+                     else
+                        pc <= pc + 1;  -- If branch is not taken, just go to the next instruction.
+                     end if;
+                  when others => null;
+               end case;
+            end if;
          end if;
       end if;
    end process pc_proc;

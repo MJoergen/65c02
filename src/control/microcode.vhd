@@ -5,6 +5,7 @@ use ieee.numeric_std_unsigned.all;
 entity microcode is
    port (
       clk_i  : in  std_logic;
+      ce_i   : in  std_logic;
       addr_i : in  std_logic_vector(10 downto 0);
       data_o : out std_logic_vector(43 downto 0)
    );
@@ -2721,7 +2722,9 @@ begin
    p_rom : process (clk_i)
    begin
       if rising_edge(clk_i) then
-         data_o <= rom(to_integer(addr_i));
+         if ce_i = '1' then
+            data_o <= rom(to_integer(addr_i));
+         end if;
       end if;
    end process p_rom;
 

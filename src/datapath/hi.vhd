@@ -5,6 +5,7 @@ use ieee.numeric_std_unsigned.all;
 entity hi is
    port (
       clk_i    : in  std_logic;
+      ce_i     : in  std_logic;
       wait_i   : in  std_logic;
       hi_sel_i : in  std_logic_vector(2 downto 0);
       data_i   : in  std_logic_vector(7 downto 0);
@@ -41,15 +42,17 @@ begin
    hi_proc : process (clk_i)
    begin
       if rising_edge(clk_i) then
-         if wait_i = '0' then
-            case hi_sel_i is
-               when HI_NOP  => null;
-               when HI_DATA => hi <= data_i;
-               when HI_ADDX => hi <= hilo_addx_s(15 downto 8);
-               when HI_ADDY => hi <= hilo_addy_s(15 downto 8);
-               when HI_INC  => hi <= hilo_inc_s(15 downto 8);
-               when others  => null;
-            end case;
+         if ce_i = '1' then
+            if wait_i = '0' then
+               case hi_sel_i is
+                  when HI_NOP  => null;
+                  when HI_DATA => hi <= data_i;
+                  when HI_ADDX => hi <= hilo_addx_s(15 downto 8);
+                  when HI_ADDY => hi <= hilo_addy_s(15 downto 8);
+                  when HI_INC  => hi <= hilo_inc_s(15 downto 8);
+                  when others  => null;
+               end case;
+            end if;
          end if;
       end if;
    end process hi_proc;

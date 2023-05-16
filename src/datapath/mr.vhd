@@ -5,6 +5,7 @@ use ieee.numeric_std_unsigned.all;
 entity mr is
    port (
       clk_i    : in  std_logic;
+      ce_i     : in  std_logic;
       wait_i   : in  std_logic;
       mr_sel_i : in  std_logic_vector(1 downto 0);
       data_i   : in  std_logic_vector(7 downto 0);
@@ -29,13 +30,15 @@ begin
    mr_proc : process (clk_i)
    begin
       if rising_edge(clk_i) then
-         if wait_i = '0' then
-            case mr_sel_i is
-               when MR_NOP  => null;
-               when MR_DATA => mr <= data_i;
-               when MR_ALU  => mr <= alu_ar_i;
-               when others  => null;
-            end case;
+         if ce_i = '1' then
+            if wait_i = '0' then
+               case mr_sel_i is
+                  when MR_NOP  => null;
+                  when MR_DATA => mr <= data_i;
+                  when MR_ALU  => mr <= alu_ar_i;
+                  when others  => null;
+               end case;
+            end if;
          end if;
       end if;
    end process mr_proc;

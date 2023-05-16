@@ -5,6 +5,7 @@ use ieee.numeric_std_unsigned.all;
 entity datapath is
    port (
       clk_i   : in  std_logic;
+      ce_i    : in  std_logic;
 
       -- Memory interface
       wait_i  : in  std_logic;
@@ -159,6 +160,7 @@ begin
    pc_inst : entity work.pc
    port map (
       clk_i    => clk_i,
+      ce_i     => ce_i,
       wait_i   => wait_i,
       pc_sel_i => pc_sel_i,
       hi_i     => hi,
@@ -177,6 +179,7 @@ begin
    ar_inst : entity work.ar
    port map (
       clk_i    => clk_i,
+      ce_i     => ce_i,
       wait_i   => wait_i,
       ar_sel_i => ar_sel_i,
       alu_ar_i => alu_ar,
@@ -191,6 +194,7 @@ begin
    xr_inst : entity work.xr
    port map (
       clk_i    => clk_i,
+      ce_i     => ce_i,
       wait_i   => wait_i,
       xr_sel_i => xr_sel_i,
       alu_ar_i => alu_ar,
@@ -205,6 +209,7 @@ begin
    yr_inst : entity work.yr
    port map (
       clk_i    => clk_i,
+      ce_i     => ce_i,
       wait_i   => wait_i,
       yr_sel_i => yr_sel_i,
       alu_ar_i => alu_ar,
@@ -219,6 +224,7 @@ begin
    mr_inst : entity work.mr
    port map (
       clk_i    => clk_i,
+      ce_i     => ce_i,
       wait_i   => wait_i,
       mr_sel_i => mr_sel_i,
       data_i   => data_i,
@@ -234,6 +240,7 @@ begin
    sp_inst : entity work.sp
    port map (
       clk_i    => clk_i,
+      ce_i     => ce_i,
       wait_i   => wait_i,
       sp_sel_i => sp_sel_i,
       xr_i     => xr,
@@ -248,6 +255,7 @@ begin
    sr_inst : entity work.sr
    port map (
       clk_i    => clk_i,
+      ce_i     => ce_i,
       wait_i   => wait_i,
       sr_sel_i => sr_sel_i,
       alu_sr_i => alu_sr,
@@ -263,6 +271,7 @@ begin
    hi_inst : entity work.hi
    port map (
       clk_i    => clk_i,
+      ce_i     => ce_i,
       wait_i   => wait_i,
       hi_sel_i => hi_sel_i,
       data_i   => data_i,
@@ -280,6 +289,7 @@ begin
    lo_inst : entity work.lo
    port map (
       clk_i    => clk_i,
+      ce_i     => ce_i,
       wait_i   => wait_i,
       lo_sel_i => lo_sel_i,
       data_i   => data_i,
@@ -297,6 +307,7 @@ begin
    zp_inst : entity work.zp
    port map (
       clk_i    => clk_i,
+      ce_i     => ce_i,
       wait_i   => wait_i,
       zp_sel_i => zp_sel_i,
       data_i   => data_i,
@@ -386,8 +397,8 @@ begin
 
    addr_o <= addr;
    data_o <= data;
-   wren_o <= wren and not wait_i;
-   rden_o <= mem and not wren;
+   wren_o <= wren and not wait_i and ce_i;
+   rden_o <= mem and not wren and ce_i;
    sri_o  <= sr(2); -- IRQ mask
 
 end architecture structural;

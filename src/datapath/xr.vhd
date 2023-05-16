@@ -5,6 +5,7 @@ use ieee.numeric_std_unsigned.all;
 entity xr is
    port (
       clk_i    : in  std_logic;
+      ce_i     : in  std_logic;
       wait_i   : in  std_logic;
       xr_sel_i : in  std_logic;
       alu_ar_i : in  std_logic_vector(7 downto 0);
@@ -24,9 +25,11 @@ begin
    xr_proc : process (clk_i)
    begin
       if rising_edge(clk_i) then
-         if wait_i = '0' then
-            if xr_sel_i = '1' then
-               xr <= alu_ar_i;
+         if ce_i = '1' then
+            if wait_i = '0' then
+               if xr_sel_i = '1' then
+                  xr <= alu_ar_i;
+               end if;
             end if;
          end if;
       end if;
