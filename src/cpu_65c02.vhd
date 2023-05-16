@@ -87,6 +87,7 @@ begin
          irq_i      => irq_i,
          wait_i     => '0',
          sri_i      => sri,
+         addr_i     => addr_o,
          data_i     => rd_data_i,
          ar_sel_o   => ar_sel,
          hi_sel_o   => hi_sel,
