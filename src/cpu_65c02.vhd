@@ -5,6 +5,9 @@ use ieee.numeric_std_unsigned.all;
 -- This module implements the 65C02 CPU.
 
 entity cpu_65c02 is
+   generic (
+      G_VERBOSE : natural
+   );
    port (
       clk_i     : in  std_logic;
       rst_i     : in  std_logic;
@@ -135,19 +138,31 @@ begin
    begin
       if rising_edge(clk_i) then
          if ce_i = '1' then
-            if ctl_debug(2 downto 0) = 0 then
-               -- Start of new instruction.
-               report "CPU: " & to_hstring(addr_o) & " : " & to_hstring(rd_data_i) & " " &
-                  C_DISAS(to_integer(rd_data_i)) & " : "
-                  & to_hstring(datapath_debug( 23 downto  16))
-                  & to_hstring(datapath_debug(111 downto 104))
-                  & to_hstring(datapath_debug(103 downto  96))
-                  & to_hstring(datapath_debug( 95 downto  88));
+            if G_VERBOSE >= 1 then
+               if ctl_debug(2 downto 0) = 0 then
+                  -- Start of new instruction.
+                  report "CPU: " & to_hstring(addr_o) & " : " & to_hstring(rd_data_i) & " " &
+                     C_DISAS(to_integer(rd_data_i)) & " : "
+                     & to_hstring(datapath_debug( 23 downto  16))
+                     & to_hstring(datapath_debug(111 downto 104))
+                     & to_hstring(datapath_debug(103 downto  96))
+                     & to_hstring(datapath_debug( 95 downto  88));
 
-               assert last_pc /= addr_o
-                  report "Infinite loop detected"
-                     severity error;
-               last_pc <= addr_o;
+                  assert last_pc /= addr_o
+                     report "Infinite loop detected"
+                        severity error;
+                  last_pc <= addr_o;
+               end if;
+            end if;
+
+            if G_VERBOSE >= 2 then
+               if pc_sel /= "0000001" and addr_sel /= "0001" and addr_sel /= "0000" and wr_en_o = '0' then
+                  report "Read from 0x" & to_hstring(addr_o);
+               end if;
+
+               if wr_en_o = '1' then
+                  report "Write 0x" & to_hstring(wr_data_o) & " to 0x" & to_hstring(addr_o);
+               end if;
             end if;
          end if;
       end if;
