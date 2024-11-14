@@ -54,6 +54,7 @@ architecture synth of cpu_65c02 is
    signal ar             : std_logic_vector(7 downto 0);
    signal xr             : std_logic_vector(7 downto 0);
    signal yr             : std_logic_vector(7 downto 0);
+   signal sr             : std_logic_vector(7 downto 0);
    signal sp             : std_logic_vector(7 downto 0);
 
    type strings_t is array (natural range <>) of string;
@@ -173,6 +174,7 @@ begin
    ar <= datapath_debug( 23 downto  16);
    xr <= datapath_debug(111 downto 104);
    yr <= datapath_debug(103 downto  96);
+   sr <= datapath_debug( 87 downto  80);
    sp <= datapath_debug( 95 downto  88);
 
    p_debug : process (clk_i)
@@ -185,7 +187,7 @@ begin
                   if G_ENABLE_IOPORT and G_VERBOSE >= 2 then
                      report "CPU: " & to_hstring(addr_o) & " : " & to_hstring(rd_data) & " " &
                         C_DISAS(to_integer(rd_data)) & " : "
-                        & to_hstring(ar) & to_hstring(xr) & to_hstring(yr) & to_hstring(sp) & " " &
+                        & to_hstring(ar) & to_hstring(xr) & to_hstring(yr) & to_hstring(sr) & to_hstring(sp) & " " &
                         to_hstring(ioport_out_o & ioport_in_i & ioport_dir_o);
                   else
                      report "CPU: " & to_hstring(addr_o) & " : " & to_hstring(rd_data) & " " &
