@@ -6,20 +6,24 @@ use ieee.numeric_std_unsigned.all;
 
 entity cpu_65c02 is
    generic (
-      G_VERBOSE : natural
+      G_ENABLE_IOPORT : boolean := false;
+      G_VERBOSE       : natural := 1
    );
    port (
-      clk_i     : in  std_logic;
-      rst_i     : in  std_logic;
-      ce_i      : in  std_logic := '1';
-      nmi_i     : in  std_logic;
-      irq_i     : in  std_logic;
-      addr_o    : out std_logic_vector(15 downto 0);
-      wr_en_o   : out std_logic;
-      wr_data_o : out std_logic_vector( 7 downto 0);
-      rd_en_o   : out std_logic;
-      rd_data_i : in  std_logic_vector( 7 downto 0);
-      debug_o   : out std_logic_vector(15 downto 0)
+      clk_i        : in  std_logic;
+      rst_i        : in  std_logic;
+      ce_i         : in  std_logic := '1';
+      nmi_i        : in  std_logic;
+      irq_i        : in  std_logic;
+      addr_o       : out std_logic_vector(15 downto 0);
+      wr_en_o      : out std_logic;
+      wr_data_o    : out std_logic_vector( 7 downto 0);
+      rd_en_o      : out std_logic;
+      rd_data_i    : in  std_logic_vector( 7 downto 0);
+      ioport_in_i  : in  std_logic_vector( 7 downto 0);
+      ioport_out_o : out std_logic_vector( 7 downto 0);
+      ioport_dir_o : out std_logic_vector( 7 downto 0);
+      debug_o      : out std_logic_vector(15 downto 0)
    );
 end entity cpu_65c02;
 
@@ -40,11 +44,17 @@ architecture synth of cpu_65c02 is
    signal reg_sel   : std_logic_vector(2 downto 0);
    signal zp_sel    : std_logic_vector(1 downto 0);
    signal sri       : std_logic;
+   signal rd_data   : std_logic_vector(7 downto 0);
+   signal ioport_in : std_logic_vector(7 downto 0);
 
    -- Debug
    signal ctl_debug      : std_logic_vector(63 downto 0);
    signal datapath_debug : std_logic_vector(111 downto 0);
    signal last_pc        : std_logic_vector(15 downto 0);
+   signal ar             : std_logic_vector(7 downto 0);
+   signal xr             : std_logic_vector(7 downto 0);
+   signal yr             : std_logic_vector(7 downto 0);
+   signal sp             : std_logic_vector(7 downto 0);
 
    type strings_t is array (natural range <>) of string;
    constant C_DISAS : strings_t(0 to 255) := (
@@ -78,7 +88,7 @@ begin
          ce_i       => ce_i,
          wait_i     => '0',
          addr_o     => addr_o,
-         data_i     => rd_data_i,
+         data_i     => rd_data,
          rden_o     => rd_en_o,
          data_o     => wr_data_o,
          wren_o     => wr_en_o,
@@ -115,7 +125,7 @@ begin
          wait_i     => '0',
          sri_i      => sri,
          addr_i     => addr_o,
-         data_i     => rd_data_i,
+         data_i     => rd_data,
          ar_sel_o   => ar_sel,
          hi_sel_o   => hi_sel,
          lo_sel_o   => lo_sel,
@@ -134,6 +144,37 @@ begin
          debug_o    => ctl_debug
       ); -- i_ctl
 
+   p_ioport : process (clk_i)
+   begin
+      if rising_edge(clk_i) then
+         if ce_i = '1' then
+            if addr_o = X"0000" and wr_en_o = '1' then
+               ioport_dir_o <= wr_data_o;
+            end if;
+            if addr_o = X"0001" and wr_en_o = '1' then
+               ioport_out_o <= wr_data_o;
+            end if;
+         end if;
+         if rst_i = '1' then
+            ioport_dir_o <= X"FF";
+            ioport_out_o <= X"FF";
+         end if;
+      end if;
+   end process p_ioport;
+
+   ioport_in <= (ioport_out_o and ioport_dir_o) or (ioport_in_i and not ioport_dir_o);
+
+   rd_data <= ioport_dir_o when G_ENABLE_IOPORT and addr_o = X"0000" else
+              ioport_in    when G_ENABLE_IOPORT and addr_o = X"0001" else
+              rd_data_i;
+
+
+
+   ar <= datapath_debug( 23 downto  16);
+   xr <= datapath_debug(111 downto 104);
+   yr <= datapath_debug(103 downto  96);
+   sp <= datapath_debug( 95 downto  88);
+
    p_debug : process (clk_i)
    begin
       if rising_edge(clk_i) then
@@ -141,12 +182,16 @@ begin
             if G_VERBOSE >= 1 then
                if ctl_debug(2 downto 0) = 0 then
                   -- Start of new instruction.
-                  report "CPU: " & to_hstring(addr_o) & " : " & to_hstring(rd_data_i) & " " &
-                     C_DISAS(to_integer(rd_data_i)) & " : "
-                     & to_hstring(datapath_debug( 23 downto  16))
-                     & to_hstring(datapath_debug(111 downto 104))
-                     & to_hstring(datapath_debug(103 downto  96))
-                     & to_hstring(datapath_debug( 95 downto  88));
+                  if G_ENABLE_IOPORT and G_VERBOSE >= 2 then
+                     report "CPU: " & to_hstring(addr_o) & " : " & to_hstring(rd_data) & " " &
+                        C_DISAS(to_integer(rd_data)) & " : "
+                        & to_hstring(ar) & to_hstring(xr) & to_hstring(yr) & to_hstring(sp) & " " &
+                        to_hstring(ioport_out_o & ioport_in_i & ioport_dir_o);
+                  else
+                     report "CPU: " & to_hstring(addr_o) & " : " & to_hstring(rd_data) & " " &
+                        C_DISAS(to_integer(rd_data)) & " : "
+                        & to_hstring(ar) & to_hstring(xr) & to_hstring(yr) & to_hstring(sp);
+                  end if;
 
                   assert last_pc /= addr_o
                      report "Infinite loop detected"

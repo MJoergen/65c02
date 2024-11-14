@@ -68,19 +68,26 @@ begin
    --------------------------------------------------
 
    i_cpu_65c02 : entity work.cpu_65c02
+      generic map (
+         G_ENABLE_IOPORT => true,
+         G_VERBOSE       => 2
+      )
       port map (
-         clk_i     => clk_s,
-         rst_i     => rst_s,
-         nmi_i     => '0',
-         irq_i     => '0',
-         addr_o    => addr_s,
-         wr_en_o   => wr_en_s,
-         wr_data_o => wr_data_s,
-         rd_en_o   => rd_en_s,
-         debug_o   => open,
-         rd_data_i => rd_data_s
+         clk_i        => clk_s,
+         rst_i        => rst_s,
+         nmi_i        => '0',
+         irq_i        => '0',
+         addr_o       => addr_s,
+         wr_en_o      => wr_en_s,
+         wr_data_o    => wr_data_s,
+         rd_en_o      => rd_en_s,
+         debug_o      => open,
+         rd_data_i    => rd_data_s,
+         ioport_in_i  => X"FF",
+         ioport_out_o => open,
+         ioport_dir_o => open
       ); -- i_cpu_65c02
-      
+
 
    --------------------------------------------------
    -- Instantiate ROM

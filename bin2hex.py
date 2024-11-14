@@ -15,7 +15,7 @@ infile  = open(infilename, 'rb')
 outfile = open(outfilename, 'w')
 
 for b in infile.read():
-    t = format(ord(b), '02x')
+    t = format(b, '02x')
     outfile.write(t+'\n')
 
 infile.close()
