@@ -14,6 +14,7 @@ entity cpu_65c02 is
       rst_i        : in  std_logic;
       ce_i         : in  std_logic := '1';
       nmi_i        : in  std_logic;
+      nmi_ack_o    : out std_logic;
       irq_i        : in  std_logic;
       addr_o       : out std_logic_vector(15 downto 0);
       wr_en_o      : out std_logic;
@@ -122,6 +123,7 @@ begin
          rst_i      => rst_i,
          ce_i       => ce_i,
          nmi_i      => nmi_i,
+         nmi_ack_o  => nmi_ack_o,
          irq_i      => irq_i,
          wait_i     => '0',
          sri_i      => sri,

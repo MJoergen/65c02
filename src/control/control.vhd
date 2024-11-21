@@ -9,6 +9,7 @@ entity control is
       wait_i     : in  std_logic;
       irq_i      : in  std_logic;
       nmi_i      : in  std_logic;
+      nmi_ack_o  : out std_logic;
       rst_i      : in  std_logic;
       sri_i      : in  std_logic;
 
@@ -174,12 +175,15 @@ begin
    begin
       if rising_edge(clk_i) then
          if ce_i = '1' then
+            nmi_ack_o <= '0';
             -- Sample and prioritize hardware interrupts at end of instruction.
             if wait_i = '0' then
                if last_s = '1' then
                   if rst_i = '1' then  -- Reset is non-maskable and level sensitive.
                      cic <= "10";
                   elsif nmi_d = '0' and nmi_i = '1' then -- NMI is non-maskable, but edge sensitive.
+                     nmi_ack_o <= '1';
+                     report "NMI";
                      cic <= "01";
                   elsif irq_i = '1' and sri_i = '0' then -- IRQ is level sensitive, but maskable.
                      cic <= "11";
