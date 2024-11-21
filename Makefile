@@ -1,5 +1,5 @@
 # Specify install location of the Xilinx Vivado tool
-XILINX_DIR = /opt/Xilinx/Vivado/2019.1
+XILINX_DIR = /opt/Xilinx/Vivado/2020.2
 
 # This defines all the source files (VHDL) used in the project
 BOARD_DIR = nexys4ddr
@@ -22,7 +22,7 @@ SOURCES += src/datapath/zp.vhd
 SOURCES += src/datapath/mr.vhd
 
 # Configure the FPGA on the Nexys4DDR board with the generated bit-file
-fpga: build/nexys4ddr.bit build
+fpga: build build/nexys4ddr.bit
 	djtgcfg prog -d Nexys4DDR -i 0 --file $<
 
 # Create build directory
