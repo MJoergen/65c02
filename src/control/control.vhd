@@ -3,6 +3,9 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std_unsigned.all;
 
 entity control is
+   generic (
+      G_VARIANT : string
+   );
    port (
       clk_i      : in  std_logic;
       ce_i       : in  std_logic;
@@ -96,13 +99,25 @@ begin
                        data_i & "001"     when cnt = 0 else
                        ir     & (cnt+1);
 
-   i_microcode : entity work.microcode
-   port map (
-      clk_i  => clk_i,
-      ce_i   => ce_i,
-      addr_i => microcode_addr_s,
-      data_o => microcode_data_s
-   );
+   variant_gen : if G_VARIANT = "65C02" generate
+      i_microcode_65c02 : entity work.microcode_65c02
+      port map (
+         clk_i  => clk_i,
+         ce_i   => ce_i,
+         addr_i => microcode_addr_s,
+         data_o => microcode_data_s
+      );
+   elsif G_VARIANT = "6502" generate
+      i_microcode_6502 : entity work.microcode_6502
+      port map (
+         clk_i  => clk_i,
+         ce_i   => ce_i,
+         addr_i => microcode_addr_s,
+         data_o => microcode_data_s
+      );
+   else generate
+      assert false report "Invalid G_VARIANT: " & G_VARIANT & ". Expected one of 65C02 or 6502" severity failure;
+   end generate variant_gen;
 
    ctl <= NOP              when invalid_inst /= 0 else
           ADDR_PC + PC_INC when cnt = 0           else

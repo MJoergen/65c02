@@ -2,16 +2,16 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std_unsigned.all;
 
-entity microcode is
+entity microcode_65c02 is
    port (
       clk_i  : in  std_logic;
       ce_i   : in  std_logic;
       addr_i : in  std_logic_vector(10 downto 0);
       data_o : out std_logic_vector(43 downto 0)
    );
-end entity microcode;
+end entity microcode_65c02;
 
-architecture structural of microcode is
+architecture structural of microcode_65c02 is
 
    subtype t_ctl is std_logic_vector(43 downto 0);
 

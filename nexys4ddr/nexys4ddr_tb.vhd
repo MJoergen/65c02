@@ -6,6 +6,9 @@ use ieee.numeric_std_unsigned.all;
 -- directly to pins on the FPGA.
 
 entity nexys4ddr_tb is
+   generic (
+      G_VARIANT : string
+   );
 end nexys4ddr_tb;
 
 architecture sim of nexys4ddr_tb is
@@ -24,6 +27,9 @@ begin
 
    -- Instantiate DUT
    i_nexys4ddr : entity work.nexys4ddr
+      generic map (
+         G_VARIANT => G_VARIANT
+      )
       port map (
          clk_i => clk_s,
          led_o => led_s

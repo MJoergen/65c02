@@ -6,6 +6,9 @@ use ieee.numeric_std_unsigned.all;
 -- directly to pins on the FPGA.
 
 entity nexys4ddr is
+   generic (
+      G_VARIANT : string
+   );
    port (
       clk_i : in  std_logic;                       -- 100 MHz
       led_o : out std_logic_vector(15 downto 0)
@@ -70,6 +73,7 @@ begin
    i_cpu_65c02 : entity work.cpu_65c02
       generic map (
          G_ENABLE_IOPORT => true,
+         G_VARIANT       => G_VARIANT,
          G_VERBOSE       => 2
       )
       port map (

@@ -2,11 +2,15 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std_unsigned.all;
 
--- This module implements the 65C02 CPU.
+-- This module implements the 6502 CPU and/or one of its variants.
+-- G_VARIANT is one of:
+-- "65C02" : The Rockwell 65C02
+-- "6502"  : Vanilla 6502
 
 entity cpu_65c02 is
    generic (
       G_ENABLE_IOPORT : boolean := false;
+      G_VARIANT       : string := "65C02";
       G_VERBOSE       : natural := 1
    );
    port (
@@ -49,6 +53,7 @@ architecture synth of cpu_65c02 is
    signal ioport_in : std_logic_vector(7 downto 0);
 
    -- Debug
+   signal invalid        : std_logic_vector(7 downto 0);
    signal ctl_debug      : std_logic_vector(63 downto 0);
    signal datapath_debug : std_logic_vector(111 downto 0);
    signal last_pc        : std_logic_vector(15 downto 0);
@@ -58,8 +63,8 @@ architecture synth of cpu_65c02 is
    signal sr             : std_logic_vector(7 downto 0);
    signal sp             : std_logic_vector(7 downto 0);
 
-   type strings_t is array (natural range <>) of string;
-   constant C_DISAS : strings_t(0 to 255) := (
+   type strings_t is array (natural range <>) of string(1 to 3);
+   constant C_DISAS_6502 : strings_t(0 to 255) := (
       "BRK", "ORA", "???", "???", "???", "ORA", "ASL", "???", "PHP", "ORA", "ASL", "???", "???", "ORA", "ASL", "???",
       "BPL", "ORA", "???", "???", "???", "ORA", "ASL", "???", "CLC", "ORA", "???", "???", "???", "ORA", "ASL", "???",
       "JSR", "AND", "???", "???", "BIT", "AND", "ROL", "???", "PLP", "AND", "ROL", "???", "BIT", "AND", "ROL", "???",
@@ -75,10 +80,39 @@ architecture synth of cpu_65c02 is
       "CPY", "CMP", "???", "???", "CPY", "CMP", "DEC", "???", "INY", "CMP", "DEX", "???", "CPY", "CMP", "DEC", "???",
       "BNE", "CMP", "???", "???", "???", "CMP", "DEC", "???", "CLD", "CMP", "???", "???", "???", "CMP", "DEC", "???",
       "CPX", "SBC", "???", "???", "CPX", "SBC", "INC", "???", "INX", "SBC", "NOP", "???", "CPX", "SBC", "INC", "???",
-      "BEQ", "SBC", "???", "???", "???", "SBC", "INC", "???", "SED", "SBC", "???", "???", "???", "SBC", "INC", "???" 
+      "BEQ", "SBC", "???", "???", "???", "SBC", "INC", "???", "SED", "SBC", "???", "???", "???", "SBC", "INC", "???"
    );
 
+   constant C_DISAS_65C02 : strings_t(0 to 255) := (
+      "BRK", "ORA", "???", "???", "TSB", "ORA", "ASL", "RMB", "PHP", "ORA", "ASL", "???", "TSB", "ORA", "ASL", "BBR",
+      "BPL", "ORA", "ORA", "???", "TRB", "ORA", "ASL", "RMB", "CLC", "ORA", "INC", "???", "TRB", "ORA", "ASL", "BBR",
+      "JSR", "AND", "???", "???", "BIT", "AND", "ROL", "RMB", "PLP", "AND", "ROL", "???", "BIT", "AND", "ROL", "BBR",
+      "BMI", "AND", "AND", "???", "BIT", "AND", "ROL", "RMB", "SEC", "AND", "DEC", "???", "BIT", "AND", "ROL", "BBR",
+      "RTI", "EOR", "???", "???", "???", "EOR", "LSR", "RMB", "PHA", "EOR", "LSR", "???", "JMP", "EOR", "LSR", "BBR",
+      "BVC", "EOR", "EOR", "???", "???", "EOR", "LSR", "RMB", "CLI", "EOR", "PHY", "???", "???", "EOR", "LSR", "BBR",
+      "RTS", "ADC", "???", "???", "STZ", "ADC", "ROR", "RMB", "PLA", "ADC", "ROR", "???", "JMP", "ADC", "ROR", "BBR",
+      "BVS", "ADC", "ADC", "???", "STZ", "ADC", "ROR", "RMB", "SEI", "ADC", "PLY", "???", "JMP", "ADC", "ROR", "BBR",
+      "BRA", "STA", "???", "???", "STY", "STA", "STX", "SMB", "DEY", "BIT", "TXA", "???", "STY", "STA", "STX", "BBS",
+      "BCC", "STA", "STA", "???", "STY", "STA", "STX", "SMB", "TYA", "STA", "TXS", "???", "STZ", "STA", "???", "BBS",
+      "LDY", "LDA", "LDX", "???", "LDY", "LDA", "LDX", "SMB", "TAY", "LDA", "TAX", "???", "LDY", "LDA", "LDX", "BBS",
+      "BCS", "LDA", "LDA", "???", "LDY", "LDA", "LDX", "SMB", "CLV", "LDA", "TSX", "???", "LDY", "LDA", "LDX", "BBS",
+      "CPY", "CMP", "???", "???", "CPY", "CMP", "DEC", "SMB", "INY", "CMP", "DEX", "???", "CPY", "CMP", "DEC", "BBS",
+      "BNE", "CMP", "CMP", "???", "???", "CMP", "DEC", "SMB", "CLD", "CMP", "PHX", "???", "???", "CMP", "DEC", "BBS",
+      "CPX", "SBC", "???", "???", "CPX", "SBC", "INC", "SMB", "INX", "SBC", "NOP", "???", "CPX", "SBC", "INC", "BBS",
+      "BEQ", "SBC", "SBC", "???", "???", "SBC", "INC", "SMB", "SED", "SBC", "PLX", "???", "???", "SBC", "INC", "BBS"
+   );
+
+   signal C_DISAS : strings_t(0 to 255);
+
 begin
+
+   disas_gen : if G_VARIANT = "6502" generate
+      C_DISAS <= C_DISAS_6502;
+   elsif G_VARIANT = "65C02" generate
+      C_DISAS <= C_DISAS_65C02;
+   else generate
+      assert false report "Unknown G_VARIANT" severity failure;
+   end generate;
 
    ------------------------
    -- Instantiate datapath
@@ -118,6 +152,9 @@ begin
    -----------------------------
 
    i_control : entity work.control
+      generic map (
+         G_VARIANT => G_VARIANT
+      )
       port map (
          clk_i      => clk_i,
          rst_i      => rst_i,
@@ -143,7 +180,7 @@ begin
          mr_sel_o   => mr_sel,
          reg_sel_o  => reg_sel,
          zp_sel_o   => zp_sel,
-         invalid_o  => open,
+         invalid_o  => invalid,
          debug_o    => ctl_debug
       ); -- i_ctl
 
@@ -196,6 +233,10 @@ begin
                         C_DISAS(to_integer(rd_data)) & " : "
                         & to_hstring(ar) & to_hstring(xr) & to_hstring(yr) & to_hstring(sp);
                   end if;
+
+                  assert invalid = X"00"
+                     report "Invalid instruction " & to_hstring(invalid)
+                        severity failure;
 
                   assert last_pc /= addr_o
                      report "Infinite loop detected"
