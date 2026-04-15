@@ -36,6 +36,16 @@ To test the implementation in simulation, type
 make sim
 ```
 
+There are two different test cases, one for the 6502 opcodes, and one for the 65C02
+opcodes. This is selected by the ROM\_FILE variable in the Makefile.
+
+The 6502 test case requires approx 75 million clock cycles (approx 3000 ms), and takes on
+my machine roughly 2.5 hours to run. Upon successful completion, the last instruction
+should be at $EE79.
+
+The 65C02 test case requires approx 60 million clock cycles (approx 2500 ms), and takes
+2 hours.  Upon successful completion, the last instruction should be at $E189.
+
 ## Implementation
 The implementation is written in VHDL-2008, and is tested on the Nexys4DDR
 board from Digilent, which contains a Xilinx Artyx-7 FPGA.

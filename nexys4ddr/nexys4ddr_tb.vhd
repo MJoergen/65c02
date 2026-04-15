@@ -28,6 +28,7 @@ begin
    -- Instantiate DUT
    i_nexys4ddr : entity work.nexys4ddr
       generic map (
+         G_SIM     => true,
          G_VARIANT => G_VARIANT
       )
       port map (

@@ -7,6 +7,7 @@ use ieee.numeric_std_unsigned.all;
 
 entity nexys4ddr is
    generic (
+      G_SIM     : boolean := false;
       G_VARIANT : string
    );
    port (
@@ -72,6 +73,7 @@ begin
 
    i_cpu_65c02 : entity work.cpu_65c02
       generic map (
+         G_SIM           => G_SIM,
          G_ENABLE_IOPORT => true,
          G_VARIANT       => G_VARIANT,
          G_VERBOSE       => 2

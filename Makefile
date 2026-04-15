@@ -1,5 +1,5 @@
 # Specify install location of the Xilinx Vivado tool
-XILINX_DIR = /opt/Xilinx/Vivado/2020.2
+XILINX_DIR = /opt/Xilinx/2025.1/Vivado
 
 PLATFORM = nexys4ddr
 PART = xc7a100tcsg324-1
@@ -24,12 +24,15 @@ SOURCES += src/datapath/yr.vhd
 SOURCES += src/datapath/zp.vhd
 SOURCES += src/datapath/mr.vhd
 
+SIM_SOURCES += src/fmt.vhd
+SIM_SOURCES += src/debug.vhd
+
 VARIANT = 65C02
 
-#ROM_FILE = test/6502_functional_test.s
-ROM_FILE = test/65C02_extended_opcodes_test.s
+ROM_FILE = test/6502_functional_test.s
+#ROM_FILE = test/65C02_extended_opcodes_test.s
 
-STOP_TIME = 1ms
+STOP_TIME = 3000ms
 
 # Configure the FPGA on the board with the generated bit-file
 fpga: build build/$(PLATFORM).bit
@@ -62,9 +65,9 @@ build/rom.txt: $(ROM_FILE)
 	./bin2hex.py build/rom.bin build/rom.txt
 
 sim: build build/rom.txt $(SOURCES) $(PLATFORM)/$(PLATFORM)_tb.vhd
-	ghdl -i --std=08 --workdir=build $(SOURCES) $(PLATFORM)/$(PLATFORM)_tb.vhd
+	ghdl -i --std=08 --workdir=build $(SOURCES) $(SIM_SOURCES) $(PLATFORM)/$(PLATFORM)_tb.vhd
 	ghdl -m --std=08 --workdir=build $(PLATFORM)_tb
-	ghdl -r $(PLATFORM)_tb  --max-stack-alloc=16384 --wave=build/$(PLATFORM).ghw --stop-time=$(STOP_TIME) -gG_VARIANT=$(VARIANT)
+	ghdl -r --std=08 --workdir=build $(PLATFORM)_tb  --max-stack-alloc=16384 --wave=build/$(PLATFORM).ghw --stop-time=$(STOP_TIME) -gG_VARIANT=$(VARIANT) | tee output.txt
 	gtkwave build/$(PLATFORM).ghw $(PLATFORM)/$(PLATFORM).gtkw
 
 # Remove all generated files
