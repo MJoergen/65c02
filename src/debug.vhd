@@ -81,47 +81,47 @@ architecture simulation of debug is
 
   -- Addressing modes
   constant C_ADDR_MODE_6502 : nat_vector_type(0 to 255)     := (
-      1, 5, 0, 0, 0, 7, 7, 0, 1,  4, 11, 0, 0, 3,  3, 0,
-      2, 6, 0, 0, 0, 8, 8, 0, 1, 10,  0, 0, 0, 9,  9, 0,
-      3, 5, 0, 0, 7, 7, 7, 0, 1,  4, 11, 0, 3, 3,  3, 0,
-      2, 6, 0, 0, 0, 8, 8, 0, 1, 10,  0, 0, 0, 9,  9, 0,
-      1, 5, 0, 0, 0, 7, 7, 0, 1,  4, 11, 0, 3, 3,  3, 0,
-      2, 6, 0, 0, 0, 8, 8, 0, 1, 10,  0, 0, 0, 9,  9, 0,
-      1, 5, 0, 0, 0, 7, 7, 0, 1,  4, 11, 0, 3, 3,  3, 0,
-      2, 6, 0, 0, 0, 8, 8, 0, 1, 10,  0, 0, 0, 9,  9, 0,
-      0, 5, 0, 0, 7, 7, 7, 0, 1,  0,  1, 0, 3, 3,  3, 0,
-      2, 6, 0, 0, 8, 8, 8, 0, 1, 10,  1, 0, 0, 9,  0, 0,
-      4, 5, 4, 0, 7, 7, 7, 0, 1,  4,  1, 0, 3, 3,  3, 0,
-      2, 6, 0, 0, 8, 8, 8, 0, 1, 10,  1, 0, 9, 9, 10, 0,
-      4, 5, 0, 0, 7, 7, 7, 0, 1,  4,  1, 0, 3, 3,  3, 0,
-      2, 6, 0, 0, 0, 8, 8, 0, 1, 10,  0, 0, 0, 9,  9, 0,
-      4, 5, 0, 0, 7, 7, 7, 0, 1,  4,  1, 0, 3, 3,  3, 0,
-      2, 6, 0, 0, 0, 8, 8, 0, 1, 10,  0, 0, 0, 9,  9, 0
+       1, 5, 0, 0, 0, 7,  7, 0, 1,  4, 11, 0,  0, 3,  3, 0,
+       2, 6, 0, 0, 0, 8,  8, 0, 1, 10,  0, 0,  0, 9,  9, 0,
+      17, 5, 0, 0, 7, 7,  7, 0, 1,  4, 11, 0,  3, 3,  3, 0,
+       2, 6, 0, 0, 0, 8,  8, 0, 1, 10,  0, 0,  0, 9,  9, 0,
+       1, 5, 0, 0, 0, 7,  7, 0, 1,  4, 11, 0,  3, 3,  3, 0,
+       2, 6, 0, 0, 0, 8,  8, 0, 1, 10,  0, 0,  0, 9,  9, 0,
+       1, 5, 0, 0, 0, 7,  7, 0, 1,  4, 11, 0, 13, 3,  3, 0,
+       2, 6, 0, 0, 0, 8,  8, 0, 1, 10,  0, 0,  0, 9,  9, 0,
+       0, 5, 0, 0, 7, 7,  7, 0, 1,  0,  1, 0,  3, 3,  3, 0,
+       2, 6, 0, 0, 8, 8,  8, 0, 1, 10,  1, 0,  0, 9,  0, 0,
+       4, 5, 4, 0, 7, 7,  7, 0, 1,  4,  1, 0,  3, 3,  3, 0,
+       2, 6, 0, 0, 8, 8, 16, 0, 1, 10,  1, 0,  9, 9, 10, 0,
+       4, 5, 0, 0, 7, 7,  7, 0, 1,  4,  1, 0,  3, 3,  3, 0,
+       2, 6, 0, 0, 0, 8,  8, 0, 1, 10,  0, 0,  0, 9,  9, 0,
+       4, 5, 0, 0, 7, 7,  7, 0, 1,  4,  1, 0,  3, 3,  3, 0,
+       2, 6, 0, 0, 0, 8,  8, 0, 1, 10,  0, 0,  0, 9,  9, 0
     ); -- constant C_ADDR_MODE_6502 : nat_vector_type(0 to 255)     := (
 
   constant C_ADDR_MODE_65C02 : nat_vector_type(0 to 255)    := (
-      1, 5,  4, 1, 7, 7, 7, 7, 1,  4, 11, 1,  3, 3,  3, 15,
-      2, 6, 12, 1, 7, 8, 8, 7, 1, 10, 11, 1,  3, 9,  9, 15,
-      3, 5,  4, 1, 7, 7, 7, 7, 1,  4, 11, 1,  3, 3,  3, 15,
-      2, 6, 12, 1, 8, 8, 8, 7, 1, 10, 11, 1,  9, 9,  9, 15,
-      1, 5,  4, 1, 7, 7, 7, 7, 1,  4, 11, 1,  3, 3,  3, 15,
-      2, 6, 12, 1, 8, 8, 8, 7, 1, 10,  1, 1,  3, 9,  9, 15,
-      1, 5,  4, 1, 7, 7, 7, 7, 1,  4, 11, 1, 13, 3,  3, 15,
-      2, 6, 12, 1, 8, 8, 8, 7, 1, 10,  1, 1, 14, 9,  9, 15,
-      2, 5,  4, 1, 7, 7, 7, 7, 1,  4,  1, 1,  3, 3,  3, 15,
-      2, 6, 12, 1, 8, 8, 8, 7, 1, 10,  1, 1,  3, 9,  3, 15,
-      4, 5,  4, 1, 7, 7, 7, 7, 1,  4,  1, 1,  3, 3,  3, 15,
-      2, 6, 12, 1, 8, 8, 8, 7, 1, 10,  1, 1,  9, 9, 10, 15,
-      4, 5,  4, 1, 7, 7, 7, 7, 1,  4,  1, 1,  3, 3,  3, 15,
-      2, 6, 12, 1, 8, 8, 8, 7, 1, 10,  1, 1,  3, 9,  9, 15,
-      4, 5,  4, 1, 7, 7, 7, 7, 1,  4,  1, 1,  3, 3,  3, 15,
-      2, 6, 12, 1, 8, 8, 8, 7, 1, 10,  1, 1,  3, 9,  9, 15
+       1, 5,  4, 1, 7, 7,  7, 7, 1,  4, 11, 1,  3, 3,  3, 15,
+       2, 6, 12, 1, 7, 8,  8, 7, 1, 10, 11, 1,  3, 9,  9, 15,
+      17, 5,  4, 1, 7, 7,  7, 7, 1,  4, 11, 1,  3, 3,  3, 15,
+       2, 6, 12, 1, 8, 8,  8, 7, 1, 10, 11, 1,  9, 9,  9, 15,
+       1, 5,  4, 1, 7, 7,  7, 7, 1,  4, 11, 1,  3, 3,  3, 15,
+       2, 6, 12, 1, 8, 8,  8, 7, 1, 10,  1, 1,  3, 9,  9, 15,
+       1, 5,  4, 1, 7, 7,  7, 7, 1,  4, 11, 1, 13, 3,  3, 15,
+       2, 6, 12, 1, 8, 8,  8, 7, 1, 10,  1, 1, 14, 9,  9, 15,
+       2, 5,  4, 1, 7, 7,  7, 7, 1,  4,  1, 1,  3, 3,  3, 15,
+       2, 6, 12, 1, 8, 8,  8, 7, 1, 10,  1, 1,  3, 9,  3, 15,
+       4, 5,  4, 1, 7, 7,  7, 7, 1,  4,  1, 1,  3, 3,  3, 15,
+       2, 6, 12, 1, 8, 8, 16, 7, 1, 10,  1, 1,  9, 9, 10, 15,
+       4, 5,  4, 1, 7, 7,  7, 7, 1,  4,  1, 1,  3, 3,  3, 15,
+       2, 6, 12, 1, 8, 8,  8, 7, 1, 10,  1, 1,  3, 9,  9, 15,
+       4, 5,  4, 1, 7, 7,  7, 7, 1,  4,  1, 1,  3, 3,  3, 15,
+       2, 6, 12, 1, 8, 8,  8, 7, 1, 10,  1, 1,  3, 9,  9, 15
     ); -- constant C_ADDR_MODE_65C02 : nat_vector_type(0 to 255)    := (
 
   signal   C_ADDR_MODE : nat_vector_type(0 to 255);
 
   -- Instruction length
-  constant C_ADDR_MODE_TO_LENGTH : nat_vector_type(0 to 15) := (
+  constant C_ADDR_MODE_TO_LENGTH : nat_vector_type(0 to 17) := (
       0, -- INVALID
       1, -- impl
       2, -- rel
@@ -137,7 +137,9 @@ architecture simulation of debug is
       2, -- izp
       3, -- ind
       3, -- iax
-      2  -- zpr
+      2, -- zpr
+      2, -- zpg,Y
+      6  -- jsr
     ); -- constant C_ADDR_MODE_TO_LENGTH : nat_vector_type(0 to 15) := (
 
   -- Used to check for loop (jump to same instruction)
@@ -163,7 +165,7 @@ begin
     variable clk_cnt_v            : natural := 1;
     variable inst_clk_cnt_first_v : natural := 0;
     variable inst_clk_cnt_last_v  : natural := 0;
-    variable inst_bytes_v         : std_logic_vector(23 downto 0);
+    variable inst_bytes_v         : std_logic_vector(47 downto 0);
     variable inst_addr_v          : std_logic_vector(15 downto 0);
     variable inst_length_v        : natural := 0;
     variable opcode_v             : natural;
@@ -181,6 +183,9 @@ begin
       elsif cnt = 2 then
         return to_hstring(arg(15 downto 8)) & " " & to_hstring(arg(7 downto 0)) & "   ";
       else
+        if arg(47 downto 40) = X"20" then
+          return to_hstring(arg(47 downto 40)) & " " & to_hstring(arg(39 downto 32)) & " " & to_hstring(arg(7 downto 0));
+        end if;
         return to_hstring(arg(23 downto 16)) & " " & to_hstring(arg(15 downto 8)) & " " & to_hstring(arg(7 downto 0));
       end if;
     end function get_inst_bytes;
@@ -202,6 +207,9 @@ begin
         oplo_v := arg((cnt - 2) * 8 + 7 downto (cnt - 2) * 8);
         if cnt >= 3 then
           ophi_v := arg((cnt - 3) * 8 + 7 downto (cnt - 3) * 8);
+          if opcode_v = X"20" then
+            ophi_v := arg((cnt - 6) * 8 + 7 downto (cnt - 6) * 8);
+          end if;
         end if;
       end if;
       addr_mode_v := C_ADDR_MODE(opcode_v);
@@ -260,6 +268,12 @@ begin
           diff_v(7 downto 0)  := oplo_v;
           return C_DISAS(opcode_v) & " $" & to_hstring(offset + diff_v) & "    ";
 
+        when 16 => -- zpg, Y
+          return C_DISAS(opcode_v) & " $" & to_hstring(oplo_v) & ",Y" & "    ";
+
+        when 17 => -- jsr
+          return C_DISAS(opcode_v) & " $" & to_hstring(ophi_v & oplo_v) & "    ";
+
         when others =>
           assert false; return "???";
 
@@ -299,7 +313,7 @@ begin
             last_pc              <= addr_i;
           end if;
 
-          inst_bytes_v := inst_bytes_v(15 downto 0) & rd_data_i;
+          inst_bytes_v := inst_bytes_v(39 downto 0) & rd_data_i;
 
           if clk_cnt_v = inst_clk_cnt_last_v then
             std.textio.write(l_v, fmt(".{}  {}  {}    {}  {}",
@@ -316,7 +330,7 @@ begin
 
           if G_VERBOSE >= 2 then
             if mem_read_i = '1' then
-              std.textio.write(l_v, fmt("MEM: {}  Read from 0x{}",
+              std.textio.write(l_v, fmt("       {}  Read from 0x{}",
                                f(clk_cnt_v, ">8d"),
                                to_hstring(addr_i)
                                ));
@@ -324,7 +338,7 @@ begin
             end if;
 
             if mem_write_i = '1' then
-              std.textio.write(l_v, fmt("MEM: {}  Write 0x{} to 0x{}",
+              std.textio.write(l_v, fmt("       {}  Write 0x{} to 0x{}",
                                f(clk_cnt_v, ">8d"),
                                to_hstring(wr_data_i),
                                to_hstring(addr_i)
