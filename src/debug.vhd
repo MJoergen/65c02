@@ -11,6 +11,7 @@ library work;
 
 entity debug is
   generic (
+    G_LOG_NAME      : string := "";
     G_ENABLE_IOPORT : boolean;
     G_VARIANT       : string;
     G_VERBOSE       : natural
@@ -157,7 +158,7 @@ begin
   end generate variant_gen;
 
 
-  debug_proc : process (clk_i)
+  debug_proc : process
     variable l_v                  : line;
     variable clk_cnt_v            : natural := 1;
     variable inst_clk_cnt_first_v : natural := 0;
@@ -167,6 +168,7 @@ begin
     variable inst_length_v        : natural := 0;
     variable opcode_v             : natural;
     variable addr_mode_v          : natural;
+    file     tf_v                 : text;
 
     -- Convert instruction bytes to string
     pure function get_inst_bytes (
@@ -267,7 +269,13 @@ begin
     end function get_inst_str;
 
   begin
-    if rising_edge(clk_i) then
+    if G_LOG_NAME = "" then
+      wait;
+    end if;
+    file_open(tf_v, G_LOG_NAME, write_mode);
+    main_loop : loop
+      wait until rising_edge(clk_i);
+
       if ce_i = '1' and rst_i = '0' then
         if G_VERBOSE >= 1 then
           clk_cnt_v := clk_cnt_v + 1;
@@ -294,15 +302,14 @@ begin
           inst_bytes_v := inst_bytes_v(15 downto 0) & rd_data_i;
 
           if clk_cnt_v = inst_clk_cnt_last_v then
-            std.textio.write(l_v, fmt("CPU: {}  {} : {}  {} : {} {}",
-                             f(inst_clk_cnt_last_v - inst_length_v + 1, ">8d"),
+            std.textio.write(l_v, fmt(".{}  {}  {}    {}  {}",
                              to_hstring(inst_addr_v),
+                             f(inst_clk_cnt_last_v - inst_length_v + 1, ">8d"),
                              get_inst_bytes(inst_bytes_v, inst_length_v),
                              get_inst_str(inst_bytes_v, inst_length_v, inst_addr_v + 2),
-                             to_hstring(regs_i),
-                             to_hstring(ioport_i)
+                             to_hstring(regs_i)
                              ));
-            writeline(output, l_v);
+            writeline(tf_v, l_v);
 
             inst_length_v := 0;
           end if;
@@ -313,7 +320,7 @@ begin
                                f(clk_cnt_v, ">8d"),
                                to_hstring(addr_i)
                                ));
-              writeline(output, l_v);
+              writeline(tf_v, l_v);
             end if;
 
             if mem_write_i = '1' then
@@ -322,12 +329,12 @@ begin
                                to_hstring(wr_data_i),
                                to_hstring(addr_i)
                                ));
-              writeline(output, l_v);
+              writeline(tf_v, l_v);
             end if;
           end if;
         end if;
       end if;
-    end if;
+    end loop main_loop;
   end process debug_proc;
 
   debug_o <= last_pc;
