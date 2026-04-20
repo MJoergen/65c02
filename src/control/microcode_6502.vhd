@@ -7,149 +7,154 @@ entity microcode_6502 is
       clk_i  : in  std_logic;
       ce_i   : in  std_logic;
       addr_i : in  std_logic_vector(10 downto 0);
-      data_o : out std_logic_vector(43 downto 0)
+      data_o : out std_logic_vector(44 downto 0)
    );
 end entity microcode_6502;
 
 architecture structural of microcode_6502 is
 
-   subtype t_ctl is std_logic_vector(43 downto 0);
+   subtype t_ctl is std_logic_vector(44 downto 0);
 
-   constant NOP         : t_ctl := B"0_00_00_000_0_0_00_0000_000000_0_000_0000_0000000_000_000_0";
+   constant NOP         : t_ctl := B"0_00_00_000_0_0_00_0000_000000_00_000_0000_0000000_000_000_0";
    --
-   constant AR_ALU      : t_ctl := B"0_00_00_000_0_0_00_0000_000000_0_000_0000_0000000_000_000_1";
+   constant AR_ALU      : t_ctl := B"0_00_00_000_0_0_00_0000_000000_00_000_0000_0000000_000_000_1";
    --
-   constant HI_DATA     : t_ctl := B"0_00_00_000_0_0_00_0000_000000_0_000_0000_0000000_000_001_0";
-   constant HI_ADDX     : t_ctl := B"0_00_00_000_0_0_00_0000_000000_0_000_0000_0000000_000_010_0";
-   constant HI_ADDY     : t_ctl := B"0_00_00_000_0_0_00_0000_000000_0_000_0000_0000000_000_011_0";
-   constant HI_INC      : t_ctl := B"0_00_00_000_0_0_00_0000_000000_0_000_0000_0000000_000_100_0";
+   constant HI_DATA     : t_ctl := B"0_00_00_000_0_0_00_0000_000000_00_000_0000_0000000_000_001_0";
+   constant HI_ADDX     : t_ctl := B"0_00_00_000_0_0_00_0000_000000_00_000_0000_0000000_000_010_0";
+   constant HI_ADDY     : t_ctl := B"0_00_00_000_0_0_00_0000_000000_00_000_0000_0000000_000_011_0";
+   constant HI_INC      : t_ctl := B"0_00_00_000_0_0_00_0000_000000_00_000_0000_0000000_000_100_0";
+   constant HI_DATA_ADDX: t_ctl := B"0_00_00_000_0_0_00_0000_000000_00_000_0000_0000000_000_101_0";
+   constant HI_DATA_ADDY: t_ctl := B"0_00_00_000_0_0_00_0000_000000_00_000_0000_0000000_000_110_0";
+   constant HI_DATA_INC : t_ctl := B"0_00_00_000_0_0_00_0000_000000_00_000_0000_0000000_000_111_0";
    --
-   constant LO_DATA     : t_ctl := B"0_00_00_000_0_0_00_0000_000000_0_000_0000_0000000_001_000_0";
-   constant LO_ADDX     : t_ctl := B"0_00_00_000_0_0_00_0000_000000_0_000_0000_0000000_010_000_0";
-   constant LO_ADDY     : t_ctl := B"0_00_00_000_0_0_00_0000_000000_0_000_0000_0000000_011_000_0";
-   constant LO_INC      : t_ctl := B"0_00_00_000_0_0_00_0000_000000_0_000_0000_0000000_100_000_0";
+   constant LO_DATA     : t_ctl := B"0_00_00_000_0_0_00_0000_000000_00_000_0000_0000000_001_000_0";
+   constant LO_ADDX     : t_ctl := B"0_00_00_000_0_0_00_0000_000000_00_000_0000_0000000_010_000_0";
+   constant LO_ADDY     : t_ctl := B"0_00_00_000_0_0_00_0000_000000_00_000_0000_0000000_011_000_0";
+   constant LO_INC      : t_ctl := B"0_00_00_000_0_0_00_0000_000000_00_000_0000_0000000_100_000_0";
    --
-   constant PC_INC      : t_ctl := B"0_00_00_000_0_0_00_0000_000000_0_000_0000_0000001_000_000_0";
-   constant PC_HL       : t_ctl := B"0_00_00_000_0_0_00_0000_000000_0_000_0000_0000010_000_000_0";
-   constant PC_HL1      : t_ctl := B"0_00_00_000_0_0_00_0000_000000_0_000_0000_0000011_000_000_0";
-   constant PC_BPL      : t_ctl := B"0_00_00_000_0_0_00_0000_000000_0_000_0000_0000100_000_000_0";
-   constant PC_BMI      : t_ctl := B"0_00_00_000_0_0_00_0000_000000_0_000_0000_0010100_000_000_0";
-   constant PC_BVC      : t_ctl := B"0_00_00_000_0_0_00_0000_000000_0_000_0000_0100100_000_000_0";
-   constant PC_BVS      : t_ctl := B"0_00_00_000_0_0_00_0000_000000_0_000_0000_0110100_000_000_0";
-   constant PC_BCC      : t_ctl := B"0_00_00_000_0_0_00_0000_000000_0_000_0000_1000100_000_000_0";
-   constant PC_BCS      : t_ctl := B"0_00_00_000_0_0_00_0000_000000_0_000_0000_1010100_000_000_0";
-   constant PC_BNE      : t_ctl := B"0_00_00_000_0_0_00_0000_000000_0_000_0000_1100100_000_000_0";
-   constant PC_BEQ      : t_ctl := B"0_00_00_000_0_0_00_0000_000000_0_000_0000_1110100_000_000_0";
-   constant PC_D_HI     : t_ctl := B"0_00_00_000_0_0_00_0000_000000_0_000_0000_0000101_000_000_0";
-   constant PC_D_LO     : t_ctl := B"0_00_00_000_0_0_00_0000_000000_0_000_0000_0000110_000_000_0";
-   constant PC_BRA      : t_ctl := B"0_00_00_000_0_0_00_0000_000000_0_000_0000_0000111_000_000_0";
-   constant PC_BBR0     : t_ctl := B"0_00_00_000_0_0_00_0000_000000_0_000_0000_0001000_000_000_0";
-   constant PC_BBR1     : t_ctl := B"0_00_00_000_0_0_00_0000_000000_0_000_0000_0011000_000_000_0";
-   constant PC_BBR2     : t_ctl := B"0_00_00_000_0_0_00_0000_000000_0_000_0000_0101000_000_000_0";
-   constant PC_BBR3     : t_ctl := B"0_00_00_000_0_0_00_0000_000000_0_000_0000_0111000_000_000_0";
-   constant PC_BBR4     : t_ctl := B"0_00_00_000_0_0_00_0000_000000_0_000_0000_1001000_000_000_0";
-   constant PC_BBR5     : t_ctl := B"0_00_00_000_0_0_00_0000_000000_0_000_0000_1011000_000_000_0";
-   constant PC_BBR6     : t_ctl := B"0_00_00_000_0_0_00_0000_000000_0_000_0000_1101000_000_000_0";
-   constant PC_BBR7     : t_ctl := B"0_00_00_000_0_0_00_0000_000000_0_000_0000_1111000_000_000_0";
-   constant PC_BBS0     : t_ctl := B"0_00_00_000_0_0_00_0000_000000_0_000_0000_0001001_000_000_0";
-   constant PC_BBS1     : t_ctl := B"0_00_00_000_0_0_00_0000_000000_0_000_0000_0011001_000_000_0";
-   constant PC_BBS2     : t_ctl := B"0_00_00_000_0_0_00_0000_000000_0_000_0000_0101001_000_000_0";
-   constant PC_BBS3     : t_ctl := B"0_00_00_000_0_0_00_0000_000000_0_000_0000_0111001_000_000_0";
-   constant PC_BBS4     : t_ctl := B"0_00_00_000_0_0_00_0000_000000_0_000_0000_1001001_000_000_0";
-   constant PC_BBS5     : t_ctl := B"0_00_00_000_0_0_00_0000_000000_0_000_0000_1011001_000_000_0";
-   constant PC_BBS6     : t_ctl := B"0_00_00_000_0_0_00_0000_000000_0_000_0000_1101001_000_000_0";
-   constant PC_BBS7     : t_ctl := B"0_00_00_000_0_0_00_0000_000000_0_000_0000_1111001_000_000_0";
+   constant PC_INC      : t_ctl := B"0_00_00_000_0_0_00_0000_000000_00_000_0000_0000001_000_000_0";
+   constant PC_HL       : t_ctl := B"0_00_00_000_0_0_00_0000_000000_00_000_0000_0000010_000_000_0";
+   constant PC_HL1      : t_ctl := B"0_00_00_000_0_0_00_0000_000000_00_000_0000_0000011_000_000_0";
+   constant PC_BPL      : t_ctl := B"0_00_00_000_0_0_00_0000_000000_00_000_0000_0000100_000_000_0";
+   constant PC_BMI      : t_ctl := B"0_00_00_000_0_0_00_0000_000000_00_000_0000_0010100_000_000_0";
+   constant PC_BVC      : t_ctl := B"0_00_00_000_0_0_00_0000_000000_00_000_0000_0100100_000_000_0";
+   constant PC_BVS      : t_ctl := B"0_00_00_000_0_0_00_0000_000000_00_000_0000_0110100_000_000_0";
+   constant PC_BCC      : t_ctl := B"0_00_00_000_0_0_00_0000_000000_00_000_0000_1000100_000_000_0";
+   constant PC_BCS      : t_ctl := B"0_00_00_000_0_0_00_0000_000000_00_000_0000_1010100_000_000_0";
+   constant PC_BNE      : t_ctl := B"0_00_00_000_0_0_00_0000_000000_00_000_0000_1100100_000_000_0";
+   constant PC_BEQ      : t_ctl := B"0_00_00_000_0_0_00_0000_000000_00_000_0000_1110100_000_000_0";
+   constant PC_D_HI     : t_ctl := B"0_00_00_000_0_0_00_0000_000000_00_000_0000_0000101_000_000_0";
+   constant PC_D_LO     : t_ctl := B"0_00_00_000_0_0_00_0000_000000_00_000_0000_0000110_000_000_0";
+   constant PC_BRA      : t_ctl := B"0_00_00_000_0_0_00_0000_000000_00_000_0000_0000111_000_000_0";
+   constant PC_BBR0     : t_ctl := B"0_00_00_000_0_0_00_0000_000000_00_000_0000_0001000_000_000_0";
+   constant PC_BBR1     : t_ctl := B"0_00_00_000_0_0_00_0000_000000_00_000_0000_0011000_000_000_0";
+   constant PC_BBR2     : t_ctl := B"0_00_00_000_0_0_00_0000_000000_00_000_0000_0101000_000_000_0";
+   constant PC_BBR3     : t_ctl := B"0_00_00_000_0_0_00_0000_000000_00_000_0000_0111000_000_000_0";
+   constant PC_BBR4     : t_ctl := B"0_00_00_000_0_0_00_0000_000000_00_000_0000_1001000_000_000_0";
+   constant PC_BBR5     : t_ctl := B"0_00_00_000_0_0_00_0000_000000_00_000_0000_1011000_000_000_0";
+   constant PC_BBR6     : t_ctl := B"0_00_00_000_0_0_00_0000_000000_00_000_0000_1101000_000_000_0";
+   constant PC_BBR7     : t_ctl := B"0_00_00_000_0_0_00_0000_000000_00_000_0000_1111000_000_000_0";
+   constant PC_BBS0     : t_ctl := B"0_00_00_000_0_0_00_0000_000000_00_000_0000_0001001_000_000_0";
+   constant PC_BBS1     : t_ctl := B"0_00_00_000_0_0_00_0000_000000_00_000_0000_0011001_000_000_0";
+   constant PC_BBS2     : t_ctl := B"0_00_00_000_0_0_00_0000_000000_00_000_0000_0101001_000_000_0";
+   constant PC_BBS3     : t_ctl := B"0_00_00_000_0_0_00_0000_000000_00_000_0000_0111001_000_000_0";
+   constant PC_BBS4     : t_ctl := B"0_00_00_000_0_0_00_0000_000000_00_000_0000_1001001_000_000_0";
+   constant PC_BBS5     : t_ctl := B"0_00_00_000_0_0_00_0000_000000_00_000_0000_1011001_000_000_0";
+   constant PC_BBS6     : t_ctl := B"0_00_00_000_0_0_00_0000_000000_00_000_0000_1101001_000_000_0";
+   constant PC_BBS7     : t_ctl := B"0_00_00_000_0_0_00_0000_000000_00_000_0000_1111001_000_000_0";
    --
-   constant ADDR_PC     : t_ctl := B"0_00_00_000_0_0_00_0000_000000_0_000_0001_0000000_000_000_0";
-   constant ADDR_HL     : t_ctl := B"0_00_00_000_0_0_00_0000_000000_0_000_0010_0000000_000_000_0";
-   constant ADDR_LO     : t_ctl := B"0_00_00_000_0_0_00_0000_000000_0_000_0011_0000000_000_000_0";
-   constant ADDR_SP     : t_ctl := B"0_00_00_000_0_0_00_0000_000000_0_000_0100_0000000_000_000_0";
-   constant ADDR_ZP     : t_ctl := B"0_00_00_000_0_0_00_0000_000000_0_000_0101_0000000_000_000_0";
-   constant ADDR_NMI    : t_ctl := B"0_00_00_000_0_0_00_0000_000000_0_000_1010_0000000_000_000_0";
-   constant ADDR_NMI1   : t_ctl := B"0_00_00_000_0_0_00_0000_000000_0_000_1011_0000000_000_000_0";
-   constant ADDR_RESET  : t_ctl := B"0_00_00_000_0_0_00_0000_000000_0_000_1100_0000000_000_000_0";
-   constant ADDR_RESET1 : t_ctl := B"0_00_00_000_0_0_00_0000_000000_0_000_1101_0000000_000_000_0";
-   constant ADDR_IRQ    : t_ctl := B"0_00_00_000_0_0_00_0000_000000_0_000_1110_0000000_000_000_0";
-   constant ADDR_IRQ1   : t_ctl := B"0_00_00_000_0_0_00_0000_000000_0_000_1111_0000000_000_000_0";
+   constant ADDR_PC     : t_ctl := B"0_00_00_000_0_0_00_0000_000000_00_000_0001_0000000_000_000_0";
+   constant ADDR_HL     : t_ctl := B"0_00_00_000_0_0_00_0000_000000_00_000_0010_0000000_000_000_0";
+   constant ADDR_LO     : t_ctl := B"0_00_00_000_0_0_00_0000_000000_00_000_0011_0000000_000_000_0";
+   constant ADDR_SP     : t_ctl := B"0_00_00_000_0_0_00_0000_000000_00_000_0100_0000000_000_000_0";
+   constant ADDR_ZP     : t_ctl := B"0_00_00_000_0_0_00_0000_000000_00_000_0101_0000000_000_000_0";
+   constant ADDR_NMI    : t_ctl := B"0_00_00_000_0_0_00_0000_000000_00_000_1010_0000000_000_000_0";
+   constant ADDR_NMI1   : t_ctl := B"0_00_00_000_0_0_00_0000_000000_00_000_1011_0000000_000_000_0";
+   constant ADDR_RESET  : t_ctl := B"0_00_00_000_0_0_00_0000_000000_00_000_1100_0000000_000_000_0";
+   constant ADDR_RESET1 : t_ctl := B"0_00_00_000_0_0_00_0000_000000_00_000_1101_0000000_000_000_0";
+   constant ADDR_IRQ    : t_ctl := B"0_00_00_000_0_0_00_0000_000000_00_000_1110_0000000_000_000_0";
+   constant ADDR_IRQ1   : t_ctl := B"0_00_00_000_0_0_00_0000_000000_00_000_1111_0000000_000_000_0";
    --
-   constant DATA_AR     : t_ctl := B"0_00_00_000_0_0_00_0000_000000_0_001_0000_0000000_000_000_0";
-   constant DATA_SR     : t_ctl := B"0_00_00_000_0_0_00_0000_000000_0_010_0000_0000000_000_000_0";
-   constant DATA_ALU    : t_ctl := B"0_00_00_000_0_0_00_0000_000000_0_011_0000_0000000_000_000_0";
-   constant DATA_PCLO   : t_ctl := B"0_00_00_000_0_0_00_0000_000000_0_100_0000_0000000_000_000_0";
-   constant DATA_PCHI   : t_ctl := B"0_00_00_000_0_0_00_0000_000000_0_101_0000_0000000_000_000_0";
-   constant DATA_SRI    : t_ctl := B"0_00_00_000_0_0_00_0000_000000_0_110_0000_0000000_000_000_0";
-   constant DATA_Z      : t_ctl := B"0_00_00_000_0_0_00_0000_000000_0_111_0000_0000000_000_000_0";
+   constant DATA_AR     : t_ctl := B"0_00_00_000_0_0_00_0000_000000_00_001_0000_0000000_000_000_0";
+   constant DATA_SR     : t_ctl := B"0_00_00_000_0_0_00_0000_000000_00_010_0000_0000000_000_000_0";
+   constant DATA_ALU    : t_ctl := B"0_00_00_000_0_0_00_0000_000000_00_011_0000_0000000_000_000_0";
+   constant DATA_PCLO   : t_ctl := B"0_00_00_000_0_0_00_0000_000000_00_100_0000_0000000_000_000_0";
+   constant DATA_PCHI   : t_ctl := B"0_00_00_000_0_0_00_0000_000000_00_101_0000_0000000_000_000_0";
+   constant DATA_SRI    : t_ctl := B"0_00_00_000_0_0_00_0000_000000_00_110_0000_0000000_000_000_0";
+   constant DATA_Z      : t_ctl := B"0_00_00_000_0_0_00_0000_000000_00_111_0000_0000000_000_000_0";
    --
-   constant LAST        : t_ctl := B"0_00_00_000_0_0_00_0000_000000_1_000_0000_0000000_000_000_0";
+   constant LAST        : t_ctl := B"0_00_00_000_0_0_00_0000_000000_01_000_0000_0000000_000_000_0";
+   constant LAST_NTAKEN : t_ctl := B"0_00_00_000_0_0_00_0000_000000_10_000_0000_0000000_000_000_0";
+   constant LAST_NWRAP  : t_ctl := B"0_00_00_000_0_0_00_0000_000000_11_000_0000_0000000_000_000_0";
    --
-   constant ALU_ORA     : t_ctl := B"0_00_00_000_0_0_00_0000_000000_0_000_0000_0000000_000_000_0";
-   constant ALU_AND     : t_ctl := B"0_00_00_000_0_0_00_0000_000001_0_000_0000_0000000_000_000_0";
-   constant ALU_EOR     : t_ctl := B"0_00_00_000_0_0_00_0000_000010_0_000_0000_0000000_000_000_0";
-   constant ALU_ADC     : t_ctl := B"0_00_00_000_0_0_00_0000_000011_0_000_0000_0000000_000_000_0";
-   constant ALU_STA     : t_ctl := B"0_00_00_000_0_0_00_0000_000100_0_000_0000_0000000_000_000_0";
-   constant ALU_LDA     : t_ctl := B"0_00_00_000_0_0_00_0000_000101_0_000_0000_0000000_000_000_0";
-   constant ALU_CMP     : t_ctl := B"0_00_00_000_0_0_00_0000_000110_0_000_0000_0000000_000_000_0";
-   constant ALU_SBC     : t_ctl := B"0_00_00_000_0_0_00_0000_000111_0_000_0000_0000000_000_000_0";
-   constant ALU_ASL_A   : t_ctl := B"0_00_00_000_0_0_00_0000_001000_0_000_0000_0000000_000_000_0";
-   constant ALU_ROL_A   : t_ctl := B"0_00_00_000_0_0_00_0000_001001_0_000_0000_0000000_000_000_0";
-   constant ALU_LSR_A   : t_ctl := B"0_00_00_000_0_0_00_0000_001010_0_000_0000_0000000_000_000_0";
-   constant ALU_ROR_A   : t_ctl := B"0_00_00_000_0_0_00_0000_001011_0_000_0000_0000000_000_000_0";
-   constant ALU_BIT_A   : t_ctl := B"0_00_00_000_0_0_00_0000_001100_0_000_0000_0000000_000_000_0";
-   constant ALU_LDA_A   : t_ctl := B"0_00_00_000_0_0_00_0000_001101_0_000_0000_0000000_000_000_0";
-   constant ALU_DEC_A   : t_ctl := B"0_00_00_000_0_0_00_0000_001110_0_000_0000_0000000_000_000_0";
-   constant ALU_INC_A   : t_ctl := B"0_00_00_000_0_0_00_0000_001111_0_000_0000_0000000_000_000_0";
-   constant ALU_BIT_B   : t_ctl := B"0_00_00_000_0_0_00_0000_010100_0_000_0000_0000000_000_000_0";
-   constant ALU_TRB     : t_ctl := B"0_00_00_000_0_0_00_0000_010101_0_000_0000_0000000_000_000_0";
-   constant ALU_TSB     : t_ctl := B"0_00_00_000_0_0_00_0000_010110_0_000_0000_0000000_000_000_0";
-   constant ALU_RMB0    : t_ctl := B"0_00_00_000_0_0_00_0000_110000_0_000_0000_0000000_000_000_0";
-   constant ALU_RMB1    : t_ctl := B"0_00_00_000_0_0_00_0000_110001_0_000_0000_0000000_000_000_0";
-   constant ALU_RMB2    : t_ctl := B"0_00_00_000_0_0_00_0000_110010_0_000_0000_0000000_000_000_0";
-   constant ALU_RMB3    : t_ctl := B"0_00_00_000_0_0_00_0000_110011_0_000_0000_0000000_000_000_0";
-   constant ALU_RMB4    : t_ctl := B"0_00_00_000_0_0_00_0000_110100_0_000_0000_0000000_000_000_0";
-   constant ALU_RMB5    : t_ctl := B"0_00_00_000_0_0_00_0000_110101_0_000_0000_0000000_000_000_0";
-   constant ALU_RMB6    : t_ctl := B"0_00_00_000_0_0_00_0000_110110_0_000_0000_0000000_000_000_0";
-   constant ALU_RMB7    : t_ctl := B"0_00_00_000_0_0_00_0000_110111_0_000_0000_0000000_000_000_0";
-   constant ALU_SMB0    : t_ctl := B"0_00_00_000_0_0_00_0000_111000_0_000_0000_0000000_000_000_0";
-   constant ALU_SMB1    : t_ctl := B"0_00_00_000_0_0_00_0000_111001_0_000_0000_0000000_000_000_0";
-   constant ALU_SMB2    : t_ctl := B"0_00_00_000_0_0_00_0000_111010_0_000_0000_0000000_000_000_0";
-   constant ALU_SMB3    : t_ctl := B"0_00_00_000_0_0_00_0000_111011_0_000_0000_0000000_000_000_0";
-   constant ALU_SMB4    : t_ctl := B"0_00_00_000_0_0_00_0000_111100_0_000_0000_0000000_000_000_0";
-   constant ALU_SMB5    : t_ctl := B"0_00_00_000_0_0_00_0000_111101_0_000_0000_0000000_000_000_0";
-   constant ALU_SMB6    : t_ctl := B"0_00_00_000_0_0_00_0000_111110_0_000_0000_0000000_000_000_0";
-   constant ALU_SMB7    : t_ctl := B"0_00_00_000_0_0_00_0000_111111_0_000_0000_0000000_000_000_0";
+   constant ALU_ORA     : t_ctl := B"0_00_00_000_0_0_00_0000_000000_00_000_0000_0000000_000_000_0";
+   constant ALU_AND     : t_ctl := B"0_00_00_000_0_0_00_0000_000001_00_000_0000_0000000_000_000_0";
+   constant ALU_EOR     : t_ctl := B"0_00_00_000_0_0_00_0000_000010_00_000_0000_0000000_000_000_0";
+   constant ALU_ADC     : t_ctl := B"0_00_00_000_0_0_00_0000_000011_00_000_0000_0000000_000_000_0";
+   constant ALU_STA     : t_ctl := B"0_00_00_000_0_0_00_0000_000100_00_000_0000_0000000_000_000_0";
+   constant ALU_LDA     : t_ctl := B"0_00_00_000_0_0_00_0000_000101_00_000_0000_0000000_000_000_0";
+   constant ALU_CMP     : t_ctl := B"0_00_00_000_0_0_00_0000_000110_00_000_0000_0000000_000_000_0";
+   constant ALU_SBC     : t_ctl := B"0_00_00_000_0_0_00_0000_000111_00_000_0000_0000000_000_000_0";
+   constant ALU_ASL_A   : t_ctl := B"0_00_00_000_0_0_00_0000_001000_00_000_0000_0000000_000_000_0";
+   constant ALU_ROL_A   : t_ctl := B"0_00_00_000_0_0_00_0000_001001_00_000_0000_0000000_000_000_0";
+   constant ALU_LSR_A   : t_ctl := B"0_00_00_000_0_0_00_0000_001010_00_000_0000_0000000_000_000_0";
+   constant ALU_ROR_A   : t_ctl := B"0_00_00_000_0_0_00_0000_001011_00_000_0000_0000000_000_000_0";
+   constant ALU_BIT_A   : t_ctl := B"0_00_00_000_0_0_00_0000_001100_00_000_0000_0000000_000_000_0";
+   constant ALU_LDA_A   : t_ctl := B"0_00_00_000_0_0_00_0000_001101_00_000_0000_0000000_000_000_0";
+   constant ALU_DEC_A   : t_ctl := B"0_00_00_000_0_0_00_0000_001110_00_000_0000_0000000_000_000_0";
+   constant ALU_INC_A   : t_ctl := B"0_00_00_000_0_0_00_0000_001111_00_000_0000_0000000_000_000_0";
+   constant ALU_BIT_B   : t_ctl := B"0_00_00_000_0_0_00_0000_010100_00_000_0000_0000000_000_000_0";
+   constant ALU_TRB     : t_ctl := B"0_00_00_000_0_0_00_0000_010101_00_000_0000_0000000_000_000_0";
+   constant ALU_TSB     : t_ctl := B"0_00_00_000_0_0_00_0000_010110_00_000_0000_0000000_000_000_0";
+   constant ALU_RMB0    : t_ctl := B"0_00_00_000_0_0_00_0000_110000_00_000_0000_0000000_000_000_0";
+   constant ALU_RMB1    : t_ctl := B"0_00_00_000_0_0_00_0000_110001_00_000_0000_0000000_000_000_0";
+   constant ALU_RMB2    : t_ctl := B"0_00_00_000_0_0_00_0000_110010_00_000_0000_0000000_000_000_0";
+   constant ALU_RMB3    : t_ctl := B"0_00_00_000_0_0_00_0000_110011_00_000_0000_0000000_000_000_0";
+   constant ALU_RMB4    : t_ctl := B"0_00_00_000_0_0_00_0000_110100_00_000_0000_0000000_000_000_0";
+   constant ALU_RMB5    : t_ctl := B"0_00_00_000_0_0_00_0000_110101_00_000_0000_0000000_000_000_0";
+   constant ALU_RMB6    : t_ctl := B"0_00_00_000_0_0_00_0000_110110_00_000_0000_0000000_000_000_0";
+   constant ALU_RMB7    : t_ctl := B"0_00_00_000_0_0_00_0000_110111_00_000_0000_0000000_000_000_0";
+   constant ALU_SMB0    : t_ctl := B"0_00_00_000_0_0_00_0000_111000_00_000_0000_0000000_000_000_0";
+   constant ALU_SMB1    : t_ctl := B"0_00_00_000_0_0_00_0000_111001_00_000_0000_0000000_000_000_0";
+   constant ALU_SMB2    : t_ctl := B"0_00_00_000_0_0_00_0000_111010_00_000_0000_0000000_000_000_0";
+   constant ALU_SMB3    : t_ctl := B"0_00_00_000_0_0_00_0000_111011_00_000_0000_0000000_000_000_0";
+   constant ALU_SMB4    : t_ctl := B"0_00_00_000_0_0_00_0000_111100_00_000_0000_0000000_000_000_0";
+   constant ALU_SMB5    : t_ctl := B"0_00_00_000_0_0_00_0000_111101_00_000_0000_0000000_000_000_0";
+   constant ALU_SMB6    : t_ctl := B"0_00_00_000_0_0_00_0000_111110_00_000_0000_0000000_000_000_0";
+   constant ALU_SMB7    : t_ctl := B"0_00_00_000_0_0_00_0000_111111_00_000_0000_0000000_000_000_0";
    --
-   constant SR_ALU      : t_ctl := B"0_00_00_000_0_0_00_0001_000000_0_000_0000_0000000_000_000_0";
-   constant SR_DATA     : t_ctl := B"0_00_00_000_0_0_00_0010_000000_0_000_0000_0000000_000_000_0";
-   constant SR_CLC      : t_ctl := B"0_00_00_000_0_0_00_1000_000000_0_000_0000_0000000_000_000_0";
-   constant SR_SEC      : t_ctl := B"0_00_00_000_0_0_00_1001_000000_0_000_0000_0000000_000_000_0";
-   constant SR_CLI      : t_ctl := B"0_00_00_000_0_0_00_1010_000000_0_000_0000_0000000_000_000_0";
-   constant SR_SEI      : t_ctl := B"0_00_00_000_0_0_00_1011_000000_0_000_0000_0000000_000_000_0";
-   constant SR_CLV      : t_ctl := B"0_00_00_000_0_0_00_1100_000000_0_000_0000_0000000_000_000_0";
-   constant SR_CLD      : t_ctl := B"0_00_00_000_0_0_00_1110_000000_0_000_0000_0000000_000_000_0";
-   constant SR_SED      : t_ctl := B"0_00_00_000_0_0_00_1111_000000_0_000_0000_0000000_000_000_0";
+   constant SR_ALU      : t_ctl := B"0_00_00_000_0_0_00_0001_000000_00_000_0000_0000000_000_000_0";
+   constant SR_DATA     : t_ctl := B"0_00_00_000_0_0_00_0010_000000_00_000_0000_0000000_000_000_0";
+   constant SR_CLC      : t_ctl := B"0_00_00_000_0_0_00_1000_000000_00_000_0000_0000000_000_000_0";
+   constant SR_SEC      : t_ctl := B"0_00_00_000_0_0_00_1001_000000_00_000_0000_0000000_000_000_0";
+   constant SR_CLI      : t_ctl := B"0_00_00_000_0_0_00_1010_000000_00_000_0000_0000000_000_000_0";
+   constant SR_SEI      : t_ctl := B"0_00_00_000_0_0_00_1011_000000_00_000_0000_0000000_000_000_0";
+   constant SR_CLV      : t_ctl := B"0_00_00_000_0_0_00_1100_000000_00_000_0000_0000000_000_000_0";
+   constant SR_CLD      : t_ctl := B"0_00_00_000_0_0_00_1110_000000_00_000_0000_0000000_000_000_0";
+   constant SR_SED      : t_ctl := B"0_00_00_000_0_0_00_1111_000000_00_000_0000_0000000_000_000_0";
    --
-   constant SP_INC      : t_ctl := B"0_00_00_000_0_0_01_0000_000000_0_000_0000_0000000_000_000_0";
-   constant SP_DEC      : t_ctl := B"0_00_00_000_0_0_10_0000_000000_0_000_0000_0000000_000_000_0";
-   constant SP_XR       : t_ctl := B"0_00_00_000_0_0_11_0000_000000_0_000_0000_0000000_000_000_0";
+   constant SP_INC      : t_ctl := B"0_00_00_000_0_0_01_0000_000000_00_000_0000_0000000_000_000_0";
+   constant SP_DEC      : t_ctl := B"0_00_00_000_0_0_10_0000_000000_00_000_0000_0000000_000_000_0";
+   constant SP_XR       : t_ctl := B"0_00_00_000_0_0_11_0000_000000_00_000_0000_0000000_000_000_0";
    --
-   constant XR_ALU      : t_ctl := B"0_00_00_000_0_1_00_0000_000000_0_000_0000_0000000_000_000_0";
+   constant XR_ALU      : t_ctl := B"0_00_00_000_0_1_00_0000_000000_00_000_0000_0000000_000_000_0";
    --
-   constant YR_ALU      : t_ctl := B"0_00_00_000_1_0_00_0000_000000_0_000_0000_0000000_000_000_0";
+   constant YR_ALU      : t_ctl := B"0_00_00_000_1_0_00_0000_000000_00_000_0000_0000000_000_000_0";
    --
-   constant REG_AR      : t_ctl := B"0_00_00_000_0_0_00_0000_000000_0_000_0000_0000000_000_000_0";
-   constant REG_XR      : t_ctl := B"0_00_00_001_0_0_00_0000_000000_0_000_0000_0000000_000_000_0";
-   constant REG_YR      : t_ctl := B"0_00_00_010_0_0_00_0000_000000_0_000_0000_0000000_000_000_0";
-   constant REG_SP      : t_ctl := B"0_00_00_011_0_0_00_0000_000000_0_000_0000_0000000_000_000_0";
-   constant REG_MR      : t_ctl := B"0_00_00_100_0_0_00_0000_000000_0_000_0000_0000000_000_000_0";
+   constant REG_AR      : t_ctl := B"0_00_00_000_0_0_00_0000_000000_00_000_0000_0000000_000_000_0";
+   constant REG_XR      : t_ctl := B"0_00_00_001_0_0_00_0000_000000_00_000_0000_0000000_000_000_0";
+   constant REG_YR      : t_ctl := B"0_00_00_010_0_0_00_0000_000000_00_000_0000_0000000_000_000_0";
+   constant REG_SP      : t_ctl := B"0_00_00_011_0_0_00_0000_000000_00_000_0000_0000000_000_000_0";
+   constant REG_MR      : t_ctl := B"0_00_00_100_0_0_00_0000_000000_00_000_0000_0000000_000_000_0";
    --
-   constant ZP_DATA     : t_ctl := B"0_00_01_000_0_0_00_0000_000000_0_000_0000_0000000_000_000_0";
-   constant ZP_ADDX     : t_ctl := B"0_00_10_000_0_0_00_0000_000000_0_000_0000_0000000_000_000_0";
-   constant ZP_INC      : t_ctl := B"0_00_11_000_0_0_00_0000_000000_0_000_0000_0000000_000_000_0";
+   constant ZP_DATA     : t_ctl := B"0_00_01_000_0_0_00_0000_000000_00_000_0000_0000000_000_000_0";
+   constant ZP_ADDX     : t_ctl := B"0_00_10_000_0_0_00_0000_000000_00_000_0000_0000000_000_000_0";
+   constant ZP_INC      : t_ctl := B"0_00_11_000_0_0_00_0000_000000_00_000_0000_0000000_000_000_0";
    --
-   constant MR_DATA     : t_ctl := B"0_01_00_000_0_0_00_0000_000000_0_000_0000_0000000_000_000_0";
-   constant MR_ALU      : t_ctl := B"0_10_00_000_0_0_00_0000_000000_0_000_0000_0000000_000_000_0";
+   constant MR_DATA     : t_ctl := B"0_01_00_000_0_0_00_0000_000000_00_000_0000_0000000_000_000_0";
+   constant MR_ALU      : t_ctl := B"0_10_00_000_0_0_00_0000_000000_00_000_0000_0000000_000_000_0";
    --
-   constant INVALID     : t_ctl := B"1_00_00_000_0_0_00_0000_000000_0_000_0000_0000000_000_000_0";
+   constant INVALID     : t_ctl := B"1_00_00_000_0_0_00_0000_000000_00_000_0000_0000000_000_000_0";
 
    -- Decode control signals
    type t_rom is array(0 to 8*256-1) of t_ctl;
@@ -409,9 +414,9 @@ architecture structural of microcode_6502 is
 -- 19 ORA a,Y
       ADDR_PC + PC_INC,
       ADDR_PC + PC_INC + LO_DATA,
-      ADDR_PC + PC_INC + HI_DATA,
-      HI_ADDY + LO_ADDY,
+      ADDR_PC + PC_INC + HI_DATA_ADDY + LO_ADDY,
       ADDR_HL + ALU_ORA + AR_ALU + SR_ALU + LAST,
+      INVALID,
       INVALID,
       INVALID,
       INVALID,
@@ -449,9 +454,9 @@ architecture structural of microcode_6502 is
 -- 1D ORA a,X
       ADDR_PC + PC_INC,
       ADDR_PC + PC_INC + LO_DATA,
-      ADDR_PC + PC_INC + HI_DATA,
-      HI_ADDX + LO_ADDX,
+      ADDR_PC + PC_INC + HI_DATA_ADDX + LO_ADDX,
       ADDR_HL + ALU_ORA + AR_ALU + SR_ALU + LAST,
+      INVALID,
       INVALID,
       INVALID,
       INVALID,
@@ -459,10 +464,10 @@ architecture structural of microcode_6502 is
 -- 1E ASL a,X
       ADDR_PC + PC_INC,
       ADDR_PC + PC_INC + LO_DATA,
-      ADDR_PC + PC_INC + HI_DATA,
-      HI_ADDX + LO_ADDX,
+      ADDR_PC + PC_INC + HI_DATA_ADDX + LO_ADDX,
       ADDR_HL + MR_DATA,
       ADDR_HL + REG_MR + ALU_ASL_A + DATA_ALU + SR_ALU + LAST,
+      INVALID,
       INVALID,
       INVALID,
 
@@ -729,9 +734,9 @@ architecture structural of microcode_6502 is
 -- 39 AND a,Y
       ADDR_PC + PC_INC,
       ADDR_PC + PC_INC + LO_DATA,
-      ADDR_PC + PC_INC + HI_DATA,
-      HI_ADDY + LO_ADDY,
+      ADDR_PC + PC_INC + HI_DATA_ADDY + LO_ADDY,
       ADDR_HL + ALU_AND + AR_ALU + SR_ALU + LAST,
+      INVALID,
       INVALID,
       INVALID,
       INVALID,
@@ -759,9 +764,9 @@ architecture structural of microcode_6502 is
 -- 3C BIT a,X
       ADDR_PC + PC_INC,
       ADDR_PC + PC_INC + LO_DATA,
-      ADDR_PC + PC_INC + HI_DATA,
-      HI_ADDX + LO_ADDX,
+      ADDR_PC + PC_INC + HI_DATA_ADDX + LO_ADDX,
       ADDR_HL + ALU_BIT_B + SR_ALU + LAST,
+      INVALID,
       INVALID,
       INVALID,
       INVALID,
@@ -769,9 +774,9 @@ architecture structural of microcode_6502 is
 -- 3D AND a,X
       ADDR_PC + PC_INC,
       ADDR_PC + PC_INC + LO_DATA,
-      ADDR_PC + PC_INC + HI_DATA,
-      HI_ADDX + LO_ADDX,
+      ADDR_PC + PC_INC + HI_DATA_ADDX + LO_ADDX,
       ADDR_HL + ALU_AND + AR_ALU + SR_ALU + LAST,
+      INVALID,
       INVALID,
       INVALID,
       INVALID,
@@ -779,10 +784,10 @@ architecture structural of microcode_6502 is
 -- 3E ROL a,X
       ADDR_PC + PC_INC,
       ADDR_PC + PC_INC + LO_DATA,
-      ADDR_PC + PC_INC + HI_DATA,
-      HI_ADDX + LO_ADDX,
+      ADDR_PC + PC_INC + HI_DATA_ADDX + LO_ADDX,
       ADDR_HL + MR_DATA,
       ADDR_HL + REG_MR + ALU_ROL_A + DATA_ALU + SR_ALU + LAST,
+      INVALID,
       INVALID,
       INVALID,
 
@@ -1049,9 +1054,9 @@ architecture structural of microcode_6502 is
 -- 59 EOR a,Y
       ADDR_PC + PC_INC,
       ADDR_PC + PC_INC + LO_DATA,
-      ADDR_PC + PC_INC + HI_DATA,
-      HI_ADDY + LO_ADDY,
+      ADDR_PC + PC_INC + HI_DATA_ADDY + LO_ADDY,
       ADDR_HL + ALU_EOR + AR_ALU + SR_ALU + LAST,
+      INVALID,
       INVALID,
       INVALID,
       INVALID,
@@ -1089,9 +1094,9 @@ architecture structural of microcode_6502 is
 -- 5D EOR a,X
       ADDR_PC + PC_INC,
       ADDR_PC + PC_INC + LO_DATA,
-      ADDR_PC + PC_INC + HI_DATA,
-      HI_ADDX + LO_ADDX,
+      ADDR_PC + PC_INC + HI_DATA_ADDX + LO_ADDX,
       ADDR_HL + ALU_EOR + AR_ALU + SR_ALU + LAST,
+      INVALID,
       INVALID,
       INVALID,
       INVALID,
@@ -1099,10 +1104,10 @@ architecture structural of microcode_6502 is
 -- 5E LSR a,X
       ADDR_PC + PC_INC,
       ADDR_PC + PC_INC + LO_DATA,
-      ADDR_PC + PC_INC + HI_DATA,
-      HI_ADDX + LO_ADDX,
+      ADDR_PC + PC_INC + HI_DATA_ADDX + LO_ADDX,
       ADDR_HL + MR_DATA,
       ADDR_HL + REG_MR + ALU_LSR_A + DATA_ALU + SR_ALU + LAST,
+      INVALID,
       INVALID,
       INVALID,
 
@@ -1369,9 +1374,9 @@ architecture structural of microcode_6502 is
 -- 79 ADC a,Y
       ADDR_PC + PC_INC,
       ADDR_PC + PC_INC + LO_DATA,
-      ADDR_PC + PC_INC + HI_DATA,
-      HI_ADDY + LO_ADDY,
+      ADDR_PC + PC_INC + HI_DATA_ADDY + LO_ADDY,
       ADDR_HL + ALU_ADC + AR_ALU + SR_ALU + LAST,
+      INVALID,
       INVALID,
       INVALID,
       INVALID,
@@ -1409,9 +1414,9 @@ architecture structural of microcode_6502 is
 -- 7D ADC a,X
       ADDR_PC + PC_INC,
       ADDR_PC + PC_INC + LO_DATA,
-      ADDR_PC + PC_INC + HI_DATA,
-      HI_ADDX + LO_ADDX,
+      ADDR_PC + PC_INC + HI_DATA_ADDX + LO_ADDX,
       ADDR_HL + ALU_ADC + AR_ALU + SR_ALU + LAST,
+      INVALID,
       INVALID,
       INVALID,
       INVALID,
@@ -1419,10 +1424,10 @@ architecture structural of microcode_6502 is
 -- 7E ROR a,X
       ADDR_PC + PC_INC,
       ADDR_PC + PC_INC + LO_DATA,
-      ADDR_PC + PC_INC + HI_DATA,
-      HI_ADDX + LO_ADDX,
+      ADDR_PC + PC_INC + HI_DATA_ADDX + LO_ADDX,
       ADDR_HL + MR_DATA,
       ADDR_HL + REG_MR + ALU_ROR_A + DATA_ALU + SR_ALU + LAST,
+      INVALID,
       INVALID,
       INVALID,
 
@@ -1689,9 +1694,9 @@ architecture structural of microcode_6502 is
 -- 99 STA a,Y
       ADDR_PC + PC_INC,
       ADDR_PC + PC_INC + LO_DATA,
-      ADDR_PC + PC_INC + HI_DATA,
-      HI_ADDY + LO_ADDY,
+      ADDR_PC + PC_INC + HI_DATA_ADDY + LO_ADDY,
       ADDR_HL + DATA_AR + LAST,
+      INVALID,
       INVALID,
       INVALID,
       INVALID,
@@ -1729,9 +1734,9 @@ architecture structural of microcode_6502 is
 -- 9D STA a,X
       ADDR_PC + PC_INC,
       ADDR_PC + PC_INC + LO_DATA,
-      ADDR_PC + PC_INC + HI_DATA,
-      HI_ADDX + LO_ADDX,
+      ADDR_PC + PC_INC + HI_DATA_ADDX + LO_ADDX,
       ADDR_HL + DATA_AR + LAST,
+      INVALID,
       INVALID,
       INVALID,
       INVALID,
@@ -2009,9 +2014,9 @@ architecture structural of microcode_6502 is
 -- B9 LDA a,Y
       ADDR_PC + PC_INC,
       ADDR_PC + PC_INC + LO_DATA,
-      ADDR_PC + PC_INC + HI_DATA,
-      HI_ADDY + LO_ADDY,
+      ADDR_PC + PC_INC + HI_DATA_ADDY + LO_ADDY,
       ADDR_HL + ALU_LDA + AR_ALU + SR_ALU + LAST,
+      INVALID,
       INVALID,
       INVALID,
       INVALID,
@@ -2039,9 +2044,9 @@ architecture structural of microcode_6502 is
 -- BC LDY a,X
       ADDR_PC + PC_INC,
       ADDR_PC + PC_INC + LO_DATA,
-      ADDR_PC + PC_INC + HI_DATA,
-      HI_ADDX + LO_ADDX,
+      ADDR_PC + PC_INC + HI_DATA_ADDX + LO_ADDX,
       ADDR_HL + ALU_LDA + YR_ALU + SR_ALU + LAST,
+      INVALID,
       INVALID,
       INVALID,
       INVALID,
@@ -2049,9 +2054,9 @@ architecture structural of microcode_6502 is
 -- BD LDA a,X
       ADDR_PC + PC_INC,
       ADDR_PC + PC_INC + LO_DATA,
-      ADDR_PC + PC_INC + HI_DATA,
-      HI_ADDX + LO_ADDX,
+      ADDR_PC + PC_INC + HI_DATA_ADDX + LO_ADDX,
       ADDR_HL + ALU_LDA + AR_ALU + SR_ALU + LAST,
+      INVALID,
       INVALID,
       INVALID,
       INVALID,
@@ -2059,9 +2064,9 @@ architecture structural of microcode_6502 is
 -- BE LDX a,Y
       ADDR_PC + PC_INC,
       ADDR_PC + PC_INC + LO_DATA,
-      ADDR_PC + PC_INC + HI_DATA,
-      HI_ADDY + LO_ADDY,
+      ADDR_PC + PC_INC + HI_DATA_ADDY + LO_ADDY,
       ADDR_HL + ALU_LDA + XR_ALU + SR_ALU + LAST,
+      INVALID,
       INVALID,
       INVALID,
       INVALID,
@@ -2238,9 +2243,9 @@ architecture structural of microcode_6502 is
 
 -- D0 BNE r
       ADDR_PC + PC_INC,
-      ADDR_PC + PC_BNE + LAST,
-      INVALID,
-      INVALID,
+      ADDR_PC + PC_BNE + LAST_NTAKEN,
+      LAST_NWRAP,
+      LAST,
       INVALID,
       INVALID,
       INVALID,
@@ -2329,9 +2334,9 @@ architecture structural of microcode_6502 is
 -- D9 CMP a,Y
       ADDR_PC + PC_INC,
       ADDR_PC + PC_INC + LO_DATA,
-      ADDR_PC + PC_INC + HI_DATA,
-      HI_ADDY + LO_ADDY,
+      ADDR_PC + PC_INC + HI_DATA_ADDY + LO_ADDY,
       ADDR_HL + ALU_CMP + AR_ALU + SR_ALU + LAST,
+      INVALID,
       INVALID,
       INVALID,
       INVALID,
@@ -2369,9 +2374,9 @@ architecture structural of microcode_6502 is
 -- DD CMP a,X
       ADDR_PC + PC_INC,
       ADDR_PC + PC_INC + LO_DATA,
-      ADDR_PC + PC_INC + HI_DATA,
-      HI_ADDX + LO_ADDX,
+      ADDR_PC + PC_INC + HI_DATA_ADDX + LO_ADDX,
       ADDR_HL + ALU_CMP + AR_ALU + SR_ALU + LAST,
+      INVALID,
       INVALID,
       INVALID,
       INVALID,
@@ -2379,10 +2384,10 @@ architecture structural of microcode_6502 is
 -- DE DEC a,X
       ADDR_PC + PC_INC,
       ADDR_PC + PC_INC + LO_DATA,
-      ADDR_PC + PC_INC + HI_DATA,
-      HI_ADDX + LO_ADDX,
+      ADDR_PC + PC_INC + HI_DATA_ADDX + LO_ADDX,
       ADDR_HL + MR_DATA,
       ADDR_HL + REG_MR + ALU_DEC_A + DATA_ALU + SR_ALU + LAST,
+      INVALID,
       INVALID,
       INVALID,
 
@@ -2649,9 +2654,9 @@ architecture structural of microcode_6502 is
 -- F9 SBC a,Y
       ADDR_PC + PC_INC,
       ADDR_PC + PC_INC + LO_DATA,
-      ADDR_PC + PC_INC + HI_DATA,
-      HI_ADDY + LO_ADDY,
+      ADDR_PC + PC_INC + HI_DATA_ADDY + LO_ADDY,
       ADDR_HL + ALU_SBC + AR_ALU + SR_ALU + LAST,
+      INVALID,
       INVALID,
       INVALID,
       INVALID,
@@ -2689,9 +2694,9 @@ architecture structural of microcode_6502 is
 -- FD SBC a,X
       ADDR_PC + PC_INC,
       ADDR_PC + PC_INC + LO_DATA,
-      ADDR_PC + PC_INC + HI_DATA,
-      HI_ADDX + LO_ADDX,
+      ADDR_PC + PC_INC + HI_DATA_ADDX + LO_ADDX,
       ADDR_HL + ALU_SBC + AR_ALU + SR_ALU + LAST,
+      INVALID,
       INVALID,
       INVALID,
       INVALID,
@@ -2699,10 +2704,10 @@ architecture structural of microcode_6502 is
 -- FE INC a,X
       ADDR_PC + PC_INC,
       ADDR_PC + PC_INC + LO_DATA,
-      ADDR_PC + PC_INC + HI_DATA,
-      HI_ADDX + LO_ADDX,
+      ADDR_PC + PC_INC + HI_DATA_ADDX + LO_ADDX,
       ADDR_HL + MR_DATA,
       ADDR_HL + REG_MR + ALU_INC_A + DATA_ALU + SR_ALU + LAST,
+      INVALID,
       INVALID,
       INVALID,
 

@@ -294,9 +294,9 @@ begin
           inst_bytes_v := inst_bytes_v(15 downto 0) & rd_data_i;
 
           if clk_cnt_v = inst_clk_cnt_last_v then
-            std.textio.write(l_v, fmt("CPU: {}  {} : {}  {} : {} {}",
-                             f(inst_clk_cnt_last_v - inst_length_v + 1, ">8d"),
+            std.textio.write(l_v, fmt(".{} {}  {}  {}  {} {}",
                              to_hstring(inst_addr_v),
+                             f(inst_clk_cnt_last_v - inst_length_v + 1, ">8d"),
                              get_inst_bytes(inst_bytes_v, inst_length_v),
                              get_inst_str(inst_bytes_v, inst_length_v, inst_addr_v + 2),
                              to_hstring(regs_i),

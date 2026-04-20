@@ -14,6 +14,7 @@ entity pc is
       mr_i     : in  std_logic_vector( 7 downto 0);
       data_i   : in  std_logic_vector( 7 downto 0);
 
+      branch_o : out std_logic_vector( 1 downto 0); -- Bit 0: Branch taken, Bit 1: Wrap
       pc_o     : out std_logic_vector(15 downto 0)
    );
 end entity pc;
@@ -59,6 +60,8 @@ architecture structural of pc is
    end function sign_extend;
 
 begin
+
+   branch_o <= "01"; -- TBD
 
    -- Program Counter
    pc_proc : process (clk_i)

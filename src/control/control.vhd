@@ -18,6 +18,7 @@ entity control is
 
       addr_i     : in  std_logic_vector(15 downto 0);
       data_i     : in  std_logic_vector(7 downto 0);
+      branch_i   : in  std_logic_vector(1 downto 0); -- Bit 0: Branch taken, Bit 1: Wrap
 
       ar_sel_o   : out std_logic;
       hi_sel_o   : out std_logic_vector(2 downto 0);
@@ -41,11 +42,15 @@ end entity control;
 
 architecture structural of control is
 
-   subtype t_ctl is std_logic_vector(43 downto 0);
+   subtype t_ctl is std_logic_vector(44 downto 0);
 
-   constant NOP     : t_ctl := B"0_00_00_000_0_0_00_0000_000000_0_000_0000_0000000_000_000_0";
-   constant PC_INC  : t_ctl := B"0_00_00_000_0_0_00_0000_000000_0_000_0000_0000001_000_000_0";
-   constant ADDR_PC : t_ctl := B"0_00_00_000_0_0_00_0000_000000_0_000_0001_0000000_000_000_0";
+   constant NOP     : t_ctl := B"0_00_00_000_0_0_00_0000_000000_00_000_0000_0000000_000_000_0";
+   constant PC_INC  : t_ctl := B"0_00_00_000_0_0_00_0000_000000_00_000_0000_0000001_000_000_0";
+   constant ADDR_PC : t_ctl := B"0_00_00_000_0_0_00_0000_000000_00_000_0001_0000000_000_000_0";
+
+   constant LAST        : std_logic_vector(1 downto 0) := "01";
+   constant LAST_NTAKEN : std_logic_vector(1 downto 0) := "10";
+   constant LAST_NWRAP  : std_logic_vector(1 downto 0) := "11";
 
    signal ir  : std_logic_vector(7 downto 0);   -- Instruction register
    signal cnt : std_logic_vector(2 downto 0);   -- Cycle counter
@@ -61,16 +66,16 @@ architecture structural of control is
    alias pc_sel    : std_logic_vector(6 downto 0) is ctl(13 downto 7);
    alias addr_sel  : std_logic_vector(3 downto 0) is ctl(17 downto 14);
    alias data_sel  : std_logic_vector(2 downto 0) is ctl(20 downto 18);
-   alias last_s    : std_logic                    is ctl(21);
-   alias alu_sel   : std_logic_vector(5 downto 0) is ctl(27 downto 22);
-   alias sr_sel    : std_logic_vector(3 downto 0) is ctl(31 downto 28);
-   alias sp_sel    : std_logic_vector(1 downto 0) is ctl(33 downto 32);
-   alias xr_sel    : std_logic                    is ctl(34);
-   alias yr_sel    : std_logic                    is ctl(35);
-   alias reg_sel   : std_logic_vector(2 downto 0) is ctl(38 downto 36);
-   alias zp_sel    : std_logic_vector(1 downto 0) is ctl(40 downto 39);
-   alias mr_sel    : std_logic_vector(1 downto 0) is ctl(42 downto 41);
-   alias invalid_s : std_logic                    is ctl(43);
+   alias last_s    : std_logic_vector(1 downto 0) is ctl(22 downto 21);
+   alias alu_sel   : std_logic_vector(5 downto 0) is ctl(28 downto 23);
+   alias sr_sel    : std_logic_vector(3 downto 0) is ctl(32 downto 29);
+   alias sp_sel    : std_logic_vector(1 downto 0) is ctl(34 downto 33);
+   alias xr_sel    : std_logic                    is ctl(35);
+   alias yr_sel    : std_logic                    is ctl(36);
+   alias reg_sel   : std_logic_vector(2 downto 0) is ctl(39 downto 37);
+   alias zp_sel    : std_logic_vector(1 downto 0) is ctl(41 downto 40);
+   alias mr_sel    : std_logic_vector(1 downto 0) is ctl(43 downto 42);
+   alias invalid_s : std_logic                    is ctl(44);
 
 
    -- Interrupt Source
@@ -130,9 +135,24 @@ begin
          if ce_i = '1' then
             if wait_i = '0' then
                cnt <= cnt + 1;
-               if last_s = '1' then
-                  cnt <= (others => '0');
-               end if;
+               case last_s is
+                 when LAST_NTAKEN =>
+                   if branch_i(0) = '0' then
+                     -- If branch not taken
+                     cnt <= (others => '0');
+                   end if;
+
+                 when LAST_NWRAP  =>
+                   if branch_i(1) = '0' then
+                     -- If no wrap
+                     cnt <= (others => '0');
+                   end if;
+
+                 when LAST        =>
+                   cnt <= (others => '0');
+
+                 when others      => null;
+               end case;
             end if;
 
             -- Upon reset, start by loading Program Counter from Reset vector.
@@ -193,7 +213,7 @@ begin
             nmi_ack_o <= '0';
             -- Sample and prioritize hardware interrupts at end of instruction.
             if wait_i = '0' then
-               if last_s = '1' then
+               if last_s = "01" then
                   if rst_i = '1' then  -- Reset is non-maskable and level sensitive.
                      cic <= "10";
                   elsif nmi_d = '0' and nmi_i = '1' then -- NMI is non-maskable, but edge sensitive.
@@ -221,7 +241,7 @@ begin
       if rising_edge(clk_i) then
          if ce_i = '1' then
             if wait_i = '0' then
-               if last_s = '1' then
+               if last_s = "01" then
                   nmi_d <= nmi_i;
                end if;
             end if;
@@ -255,8 +275,8 @@ begin
    debug_o( 2 downto  0) <= cnt;    -- One byte
    debug_o( 7 downto  3) <= (others => '0');
    debug_o(15 downto  8) <= data_i when cnt = 0 else ir;     -- One byte
-   debug_o(59 downto 16) <= ctl;    -- Two bytes
-   debug_o(63 downto 60) <= (others => '0');
+   debug_o(60 downto 16) <= ctl;    -- Two bytes
+   debug_o(63 downto 61) <= (others => '0');
 
 end architecture structural;
 

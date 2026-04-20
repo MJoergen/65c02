@@ -17,6 +17,7 @@ entity datapath is
 
       -- Control signals
       sri_o      : out std_logic;
+      branch_o   : out std_logic_vector(1 downto 0); -- Bit 0: Branch taken, Bit 1: Wrap
       ar_sel_i   : in  std_logic;
       hi_sel_i   : in  std_logic_vector(2 downto 0);
       lo_sel_i   : in  std_logic_vector(2 downto 0);
@@ -168,6 +169,7 @@ begin
       sr_i     => sr,
       mr_i     => mr,
       data_i   => data_i,
+      branch_o => branch_o,
       pc_o     => pc
    ); -- pc_inst
 

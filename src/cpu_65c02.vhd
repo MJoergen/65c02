@@ -52,6 +52,7 @@ architecture synth of cpu_65c02 is
    signal sri       : std_logic;
    signal rd_data   : std_logic_vector(7 downto 0);
    signal ioport_in : std_logic_vector(7 downto 0);
+   signal branch    : std_logic_vector(1 downto 0); -- Bit 0: Branch taken, Bit 1: Wrap
 
    -- Debug
    signal invalid        : std_logic_vector(7 downto 0);
@@ -90,6 +91,7 @@ begin
          data_o     => wr_data_o,
          wren_o     => wr_en_o,
          sri_o      => sri,
+         branch_o   => branch,
          ar_sel_i   => ar_sel,
          hi_sel_i   => hi_sel,
          lo_sel_i   => lo_sel,
@@ -127,6 +129,7 @@ begin
          sri_i      => sri,
          addr_i     => addr_o,
          data_i     => rd_data,
+         branch_i   => branch,
          ar_sel_o   => ar_sel,
          hi_sel_o   => hi_sel,
          lo_sel_o   => lo_sel,

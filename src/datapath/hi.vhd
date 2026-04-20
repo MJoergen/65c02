@@ -19,25 +19,34 @@ end entity hi;
 
 architecture structural of hi is
 
-   constant HI_NOP    : std_logic_vector(2 downto 0) := B"000";
-   constant HI_DATA   : std_logic_vector(2 downto 0) := B"001";
-   constant HI_ADDX   : std_logic_vector(2 downto 0) := B"010";
-   constant HI_ADDY   : std_logic_vector(2 downto 0) := B"011";
-   constant HI_INC    : std_logic_vector(2 downto 0) := B"100";
+   constant HI_NOP       : std_logic_vector(2 downto 0) := B"000";
+   constant HI_DATA      : std_logic_vector(2 downto 0) := B"001";
+   constant HI_ADDX      : std_logic_vector(2 downto 0) := B"010";
+   constant HI_ADDY      : std_logic_vector(2 downto 0) := B"011";
+   constant HI_INC       : std_logic_vector(2 downto 0) := B"100";
+   constant HI_DATA_ADDX : std_logic_vector(2 downto 0) := B"101";
+   constant HI_DATA_ADDY : std_logic_vector(2 downto 0) := B"110";
+   constant HI_DATA_INC  : std_logic_vector(2 downto 0) := B"111";
 
    -- Address Hi register
    signal hi : std_logic_vector(7 downto 0);
 
-   signal hilo_addx_s : std_logic_vector(15 downto 0);
-   signal hilo_addy_s : std_logic_vector(15 downto 0);
-   signal hilo_inc_s  : std_logic_vector(15 downto 0);
-   
+   signal hilo_addx_s    : std_logic_vector(15 downto 0);
+   signal hilo_addy_s    : std_logic_vector(15 downto 0);
+   signal hilo_inc_s     : std_logic_vector(15 downto 0);
+   signal data_lo_addx_s : std_logic_vector(15 downto 0);
+   signal data_lo_addy_s : std_logic_vector(15 downto 0);
+   signal data_lo_inc_s  : std_logic_vector(15 downto 0);
+
 begin
 
-   hilo_addx_s <= (hi & lo_i) + xr_i;
-   hilo_addy_s <= (hi & lo_i) + yr_i;
-   hilo_inc_s  <= (hi & lo_i) + 1;
-   
+   hilo_addx_s    <= (hi & lo_i) + xr_i;
+   hilo_addy_s    <= (hi & lo_i) + yr_i;
+   hilo_inc_s     <= (hi & lo_i) + 1;
+   data_lo_addx_s <= (data_i & lo_i) + xr_i;
+   data_lo_addy_s <= (data_i & lo_i) + yr_i;
+   data_lo_inc_s  <= (data_i & lo_i) + 1;
+
    -- 'Hi' register
    hi_proc : process (clk_i)
    begin
@@ -45,12 +54,15 @@ begin
          if ce_i = '1' then
             if wait_i = '0' then
                case hi_sel_i is
-                  when HI_NOP  => null;
-                  when HI_DATA => hi <= data_i;
-                  when HI_ADDX => hi <= hilo_addx_s(15 downto 8);
-                  when HI_ADDY => hi <= hilo_addy_s(15 downto 8);
-                  when HI_INC  => hi <= hilo_inc_s(15 downto 8);
-                  when others  => null;
+                  when HI_NOP       => null;
+                  when HI_DATA      => hi <= data_i;
+                  when HI_ADDX      => hi <= hilo_addx_s(15 downto 8);
+                  when HI_ADDY      => hi <= hilo_addy_s(15 downto 8);
+                  when HI_INC       => hi <= hilo_inc_s(15 downto 8);
+                  when HI_DATA_ADDX => hi <= data_lo_addx_s(15 downto 8);
+                  when HI_DATA_ADDY => hi <= data_lo_addy_s(15 downto 8);
+                  when HI_DATA_INC  => hi <= data_lo_inc_s(15 downto 8);
+                  when others       => null;
                end case;
             end if;
          end if;
