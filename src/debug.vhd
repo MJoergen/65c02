@@ -145,6 +145,8 @@ architecture simulation of debug is
   -- Used to check for loop (jump to same instruction)
   signal last_pc : std_logic_vector(15 downto 0);
 
+  signal clk_cnt : natural;
+
 begin
 
   variant_gen : if G_VARIANT = "6502" generate
@@ -293,6 +295,7 @@ begin
       if ce_i = '1' and rst_i = '0' then
         if G_VERBOSE >= 1 then
           clk_cnt_v := clk_cnt_v + 1;
+          clk_cnt <= clk_cnt_v;
 
           if sync_i = '1' then
             opcode_v             := to_integer(rd_data_i);

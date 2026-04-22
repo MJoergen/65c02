@@ -9,6 +9,7 @@ use ieee.numeric_std_unsigned.all;
 
 entity cpu_65c02 is
    generic (
+      G_LOG_NAME      : string := "";
       G_SIM           : boolean;
       G_ENABLE_IOPORT : boolean := false;
       G_VARIANT       : string := "65C02";
@@ -180,6 +181,7 @@ begin
    debug_gen : if G_SIM generate
       debug_inst : entity work.debug
          generic map (
+            G_LOG_NAME      => G_LOG_NAME,
             G_ENABLE_IOPORT => G_ENABLE_IOPORT,
             G_VARIANT       => G_VARIANT,
             G_VERBOSE       => G_VERBOSE

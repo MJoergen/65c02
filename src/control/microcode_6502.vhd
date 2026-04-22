@@ -482,7 +482,7 @@ architecture structural of microcode_6502 is
       ADDR_PC + HI_DATA,
       ADDR_SP + DATA_PCHI + SP_DEC,
       ADDR_SP + DATA_PCLO + SP_DEC,
-      PC_HL + LAST,
+      ADDR_PC + PC_HL + LAST,
       INVALID,
       INVALID,
 
