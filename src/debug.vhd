@@ -21,11 +21,13 @@ entity debug is
     rst_i       : in    std_logic;
     ce_i        : in    std_logic;
     sync_i      : in    std_logic;
+    irq_i       : in    std_logic;
+    nmi_i       : in    std_logic;
     invalid_i   : in    std_logic_vector( 7 downto 0);
     addr_i      : in    std_logic_vector(15 downto 0);
     rd_data_i   : in    std_logic_vector( 7 downto 0);
     wr_data_i   : in    std_logic_vector( 7 downto 0);
-    regs_i      : in    std_logic_vector(31 downto 0);
+    regs_i      : in    std_logic_vector(39 downto 0);
     ioport_i    : in    std_logic_vector(23 downto 0);
     mem_read_i  : in    std_logic;
     mem_write_i : in    std_logic;
@@ -146,6 +148,8 @@ architecture simulation of debug is
   signal last_pc : std_logic_vector(15 downto 0);
 
   signal clk_cnt : natural;
+  signal irq_last : std_logic;
+  signal nmi_last : std_logic;
 
 begin
 
@@ -296,6 +300,37 @@ begin
         if G_VERBOSE >= 1 then
           clk_cnt_v := clk_cnt_v + 1;
           clk_cnt <= clk_cnt_v;
+
+          irq_last <= irq_i;
+          nmi_last <= nmi_i;
+
+          if irq_last = '0' and irq_i = '1' then
+            std.textio.write(l_v, fmt("       {}  IRQ rising edge",
+                             f(clk_cnt_v, ">8d")
+                             ));
+            writeline(tf_v, l_v);
+          end if;
+
+          if irq_last = '1' and irq_i = '0' then
+            std.textio.write(l_v, fmt("       {}  IRQ falling edge",
+                             f(clk_cnt_v, ">8d")
+                             ));
+            writeline(tf_v, l_v);
+          end if;
+
+          if nmi_last = '0' and nmi_i = '1' then
+            std.textio.write(l_v, fmt("       {}  NMI rising edge",
+                             f(clk_cnt_v, ">8d")
+                             ));
+            writeline(tf_v, l_v);
+          end if;
+
+          if nmi_last = '1' and nmi_i = '0' then
+            std.textio.write(l_v, fmt("       {}  NMI falling edge",
+                             f(clk_cnt_v, ">8d")
+                             ));
+            writeline(tf_v, l_v);
+          end if;
 
           if sync_i = '1' then
             opcode_v             := to_integer(rd_data_i);
